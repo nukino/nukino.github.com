@@ -4,7 +4,7 @@
   <title><![CDATA[Nukino's Archive]]></title>
   <link href="http://nukino.github.com/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2011-12-24T05:56:29+09:00</updated>
+  <updated>2011-12-24T14:58:20+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -12,5 +12,16 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[test]]></title>
+    <link href="http://nukino.github.com/blog/2011/12/24/test-post/"/>
+    <updated>2011-12-24T05:58:00+09:00</updated>
+    <id>http://nukino.github.com/blog/2011/12/24/test-post</id>
+    <content type="html"><![CDATA[<h1>hogehoge</h1>
+
+<p>test nanoda!</p>
+]]></content>
+  </entry>
   
 </feed>
