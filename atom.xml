@@ -4,7 +4,7 @@
   <title><![CDATA[Nukino's memorandum]]></title>
   <link href="http://nukino.github.com/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2011-12-24T16:37:40+09:00</updated>
+  <updated>2012-01-03T09:20:35+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -14,13 +14,111 @@
 
   
   <entry>
-    <title type="html"><![CDATA[test]]></title>
+    <title type="html"><![CDATA[vim環境の再構築１(DropBoxでvim設定の共有)]]></title>
     <link href="http://nukino.github.com/blog/2011/12/24/test-post/"/>
     <updated>2011-12-24T05:58:00+09:00</updated>
     <id>http://nukino.github.com/blog/2011/12/24/test-post</id>
-    <content type="html"><![CDATA[<h2>hogehoge</h2>
+    <content type="html"><![CDATA[<p>最近vimでvundleとかpathogenとかでプラグイン管理するのが流行ってるっぽいので、私もやってみたい。<br />
+ついでなのでこの機会にvim環境を再構築してみようと計画してみた。</p>
 
-<p>test nanoda!</p>
+<ol>
+  <li>vim設定の共有化</li>
+  <li>neobundleでプラグイン管理</li>
+  <li>今使ってるプラグインの見直し</li>
+  <li>ruby編集環境構築(quickrun、vim-refなど)</li>
+</ol>
+
+<p>こんな感じの計画かな？</p>
+
+<h2 id="vim">vim設定の共有化について</h2>
+
+<p>使ってるPCでプラグインやその他設定が一致していると便利。</p>
+
+<p>githubでvim設定を共有化するページを幾つか見つけたが、なんとなく同期させるには毎回コマンドを打たない
+といけないような気がする。</p>
+
+<p>ものぐさな私はそんな鬱陶しいことやってられないので、今使ってるDropBoxを利用すればDropBoxフォルダに置
+いておくだけで、自動的に同期してくれるから便利な気がする。</p>
+
+<p>もちろんSugarSyncなどローカルにあるフォルダを同期してくれるオンラインストレージならなんでもおｋ。</p>
+
+<p>DropBoxでアカウント取りたい場合は<a href="http://db.tt/cZwekOvO">ここ</a>からアカウント作ってくれると嬉しいです
+。(招待機能で招待した人された人双方に256MB容量が増える。でもアカウント作ったメアドが私にばれちゃうの
+で注意)</p>
+
+<h2 id="vimrcgvimrcdropbox">ユーザvimrc、ユーザgvimrcをDropBoxフォルダで管理</h2>
+
+<p>ユーザvimrc、ユーザgvimrcは私の環境はWindowsなので、<code>$HOME/_vimrc</code>、<code>$HOME/_gvimrc</code>にあります。</p>
+
+<p>これをDropBoxフォルダに置きたい。一番簡単なのは</p>
+
+<pre class="cmdline"><code>SET HOME=%DROPBOX_DIR%
+</code></pre>
+
+<p>みたいに$HOMEをDrobBoxフォルダにしてしまうことですが、これは好みではない。</p>
+
+<p>なので、ハードリンクを使おうと思う(Windows 2000以降＆$HOMEとDropBoxフォルダが同じボリューム＆その
+ボリュームがNTFSフォーマットの場合使用可能)。  </p>
+
+<p>最近のMac OSやlinuxユーザはハードリンクなりシンボリックリンクなりを使えば可能だと思う(lnコマンドだっ
+け？)。<br />
+Windows Vista以降ではシンボリックリンクが実装されてるみたいなんで、同一ボリュームの制限はないみたい
+(mklinkコマンドを使用？)</p>
+
+<p>私はPPxというファイラでサクッと作ってしまいましたが、持ってない人はコマンドラインを叩けば可。</p>
+
+<p>$HOME/_vimrc、$HOME/_gvimrcをDropBoxフォルダへ移動した上で(不安ならバックアップ取った上で)</p>
+
+<pre class="cmdline"><code>fsutil hardlink create %HOME%\_vimrc %DROPBOX_DIR%\_vimrc
+fsutil hardlink create %HOME%\_gvimrc %DROPBOX_DIR%\_gvimrc
+</code></pre>
+
+<p>とかすれば出来るんじゃないかと思います。</p>
+
+<p>残念ながらハードリンク or シンボリックリンクを使える条件を満たしてない場合は若干イリーガルだけど、</p>
+
+<pre class="cmdline"><code>SET MYVIMRC=%DROPBOX_DIR%\_vimrc
+SET MYGVIMRC=%DROPBOX_DIR%\_gvimrc
+SET VIMINIT=:source %MYVIMRC%
+SET GVIMINIT=:source %MYGVIMRC%
+</code></pre>
+
+<p>とかすればOK(当然コントロールパネル等で上記コマンドに相当する環境変数の設定をやること)</p>
+
+<p>最初ハードリンクがファイルへのリンク貼れるの知らなくて、こっちのイリーガルな方法でやってたんで、動作
+は確認済み(ただし私の環境ではMYGVIMRCは環境変数展開じゃ駄目で直接パス打ち込まないと動かなかった)</p>
+
+<p>または$HOME/_vimrcに</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>`$HOME/_vimrc` </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class=""><span class="line">source expand('$DROPBOX_DIR') . '/_vimrc'</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>とか書いてもおｋ・・・だと思う(試してない)</p>
+
+<h2 id="runtimepath">$RUNTIMEPATHの追加</h2>
+
+<p>$RUNTIMEPATHは以下のように運用しようと思う</p>
+
+<dl>
+  <dt>$DROPBOX_DIR/vimfiles</dt>
+  <dd>共有するプラグイン、vim設定を入れる</dd>
+  <dt>$HOME/vimfiles/</dt>
+  <dd>そのパソコン固有の設定を入れる</dd>
+  <dt>$HOME/vimfiles/after</dt>
+  <dd>そのパソコン固有の設定を入れる。共有設定を上書きしたい場合に利用する</dd>
+</dl>
+
+<p>ということでDROPBOX_DIRという環境変数を設定した上で、ユーザvimrcの先頭に以下のように記述する</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>`$HOME/_vimrc` </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class=""><span class="line">let dropbox_vim=substitute(expand($DROPBOX_DIR), "\\", "/", "g") . '/vimfiles'
+</span><span class="line">	let &amp;runtimepath = dropbox_vim . "," . &amp;runtimepath</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>$vimのpluginとかより先にロードされちゃうのが若干気になるが、今のところ特に問題はなさそう。</p>
+
 ]]></content>
   </entry>
   

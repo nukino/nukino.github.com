@@ -9,8 +9,8 @@
   <meta name="author" content="nukino">
 
   
-  <meta name="description" content="hogehoge test nanoda!
-">
+  <meta name="description" content="最近vimでvundleとかpathogenとかでプラグイン管理するのが流行ってるっぽいので、私もやってみたい。
+ついでなのでこの機会にvim環境を再構築してみようと計画してみた。 vim設定の共有化 neobundleでプラグイン管理 今使ってるプラグインの見直し ruby編集環境構築( &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -31,6 +31,18 @@
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
   
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27974112-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
 
 </head>
 
@@ -71,7 +83,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2011/12/24/test-post/">Test</a></h1>
+      <h1 class="entry-title"><a href="/blog/2011/12/24/test-post/">vim環境の再構築１(DropBoxでvim設定の共有)</a></h1>
     
     
       <p class="meta">
@@ -87,7 +99,7 @@
   
 
 
-<time datetime="2011-12-24T05:58:00+09:00" pubdate data-updated="true">Dec 24<span>th</span>, 2011</time>
+<time datetime="2011-12-24T05:58:00+09:00" pubdate data-updated="true">2011年12月24日(Sat)</time>
         
          | <a href="/blog/2011/12/24/test-post/#disqus_thread">Comments</a>
         
@@ -96,9 +108,107 @@
   </header>
 
 
-  <div class="entry-content"><h2>hogehoge</h2>
+  <div class="entry-content"><p>最近vimでvundleとかpathogenとかでプラグイン管理するのが流行ってるっぽいので、私もやってみたい。<br />
+ついでなのでこの機会にvim環境を再構築してみようと計画してみた。</p>
 
-<p>test nanoda!</p>
+<ol>
+  <li>vim設定の共有化</li>
+  <li>neobundleでプラグイン管理</li>
+  <li>今使ってるプラグインの見直し</li>
+  <li>ruby編集環境構築(quickrun、vim-refなど)</li>
+</ol>
+
+<p>こんな感じの計画かな？</p>
+
+<h2 id="vim">vim設定の共有化について</h2>
+
+<p>使ってるPCでプラグインやその他設定が一致していると便利。</p>
+
+<p>githubでvim設定を共有化するページを幾つか見つけたが、なんとなく同期させるには毎回コマンドを打たない
+といけないような気がする。</p>
+
+<p>ものぐさな私はそんな鬱陶しいことやってられないので、今使ってるDropBoxを利用すればDropBoxフォルダに置
+いておくだけで、自動的に同期してくれるから便利な気がする。</p>
+
+<p>もちろんSugarSyncなどローカルにあるフォルダを同期してくれるオンラインストレージならなんでもおｋ。</p>
+
+<p>DropBoxでアカウント取りたい場合は<a href="http://db.tt/cZwekOvO">ここ</a>からアカウント作ってくれると嬉しいです
+。(招待機能で招待した人された人双方に256MB容量が増える。でもアカウント作ったメアドが私にばれちゃうの
+で注意)</p>
+
+<h2 id="vimrcgvimrcdropbox">ユーザvimrc、ユーザgvimrcをDropBoxフォルダで管理</h2>
+
+<p>ユーザvimrc、ユーザgvimrcは私の環境はWindowsなので、<code>$HOME/_vimrc</code>、<code>$HOME/_gvimrc</code>にあります。</p>
+
+<p>これをDropBoxフォルダに置きたい。一番簡単なのは</p>
+
+<pre class="cmdline"><code>SET HOME=%DROPBOX_DIR%
+</code></pre>
+
+<p>みたいに$HOMEをDrobBoxフォルダにしてしまうことですが、これは好みではない。</p>
+
+<p>なので、ハードリンクを使おうと思う(Windows 2000以降＆$HOMEとDropBoxフォルダが同じボリューム＆その
+ボリュームがNTFSフォーマットの場合使用可能)。  </p>
+
+<p>最近のMac OSやlinuxユーザはハードリンクなりシンボリックリンクなりを使えば可能だと思う(lnコマンドだっ
+け？)。<br />
+Windows Vista以降ではシンボリックリンクが実装されてるみたいなんで、同一ボリュームの制限はないみたい
+(mklinkコマンドを使用？)</p>
+
+<p>私はPPxというファイラでサクッと作ってしまいましたが、持ってない人はコマンドラインを叩けば可。</p>
+
+<p>$HOME/_vimrc、$HOME/_gvimrcをDropBoxフォルダへ移動した上で(不安ならバックアップ取った上で)</p>
+
+<pre class="cmdline"><code>fsutil hardlink create %HOME%\_vimrc %DROPBOX_DIR%\_vimrc
+fsutil hardlink create %HOME%\_gvimrc %DROPBOX_DIR%\_gvimrc
+</code></pre>
+
+<p>とかすれば出来るんじゃないかと思います。</p>
+
+<p>残念ながらハードリンク or シンボリックリンクを使える条件を満たしてない場合は若干イリーガルだけど、</p>
+
+<pre class="cmdline"><code>SET MYVIMRC=%DROPBOX_DIR%\_vimrc
+SET MYGVIMRC=%DROPBOX_DIR%\_gvimrc
+SET VIMINIT=:source %MYVIMRC%
+SET GVIMINIT=:source %MYGVIMRC%
+</code></pre>
+
+<p>とかすればOK(当然コントロールパネル等で上記コマンドに相当する環境変数の設定をやること)</p>
+
+<p>最初ハードリンクがファイルへのリンク貼れるの知らなくて、こっちのイリーガルな方法でやってたんで、動作
+は確認済み(ただし私の環境ではMYGVIMRCは環境変数展開じゃ駄目で直接パス打ち込まないと動かなかった)</p>
+
+<p>または$HOME/_vimrcに</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>`$HOME/_vimrc` </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class=""><span class="line">source expand('$DROPBOX_DIR') . '/_vimrc'</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>とか書いてもおｋ・・・だと思う(試してない)</p>
+
+<h2 id="runtimepath">$RUNTIMEPATHの追加</h2>
+
+<p>$RUNTIMEPATHは以下のように運用しようと思う</p>
+
+<dl>
+  <dt>$DROPBOX_DIR/vimfiles</dt>
+  <dd>共有するプラグイン、vim設定を入れる</dd>
+  <dt>$HOME/vimfiles/</dt>
+  <dd>そのパソコン固有の設定を入れる</dd>
+  <dt>$HOME/vimfiles/after</dt>
+  <dd>そのパソコン固有の設定を入れる。共有設定を上書きしたい場合に利用する</dd>
+</dl>
+
+<p>ということでDROPBOX_DIRという環境変数を設定した上で、ユーザvimrcの先頭に以下のように記述する</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>`$HOME/_vimrc` </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class=""><span class="line">let dropbox_vim=substitute(expand($DROPBOX_DIR), "\\", "/", "g") . '/vimfiles'
+</span><span class="line">	let &amp;runtimepath = dropbox_vim . "," . &amp;runtimepath</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>$vimのpluginとかより先にロードされちゃうのが若干気になるが、今のところ特に問題はなさそう。</p>
+
 </div>
   
   
@@ -115,11 +225,16 @@
 <aside class="sidebar">
   
     <section>
+  <h1>About Me</h1>
+  <p>本職は組み込み系の30代Cプログラマ</p>
+  <p>Windows専用でLinuxとかは基本専門外。いつか使いこなせるようになりたいと夢見てる</p>
+</section>
+<section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2011/12/24/test-post/">test</a>
+        <a href="/blog/2011/12/24/test-post/">vim環境の再構築１(DropBoxでvim設定の共有)</a>
       </li>
     
   </ul>
@@ -136,7 +251,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2011 - nukino -
+  Copyright &copy; 2012 - nukino -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 
