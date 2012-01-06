@@ -4,7 +4,7 @@
   <title><![CDATA[Nukino's memorandum]]></title>
   <link href="http://nukino.github.com/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2012-01-06T17:28:36+09:00</updated>
+  <updated>2012-01-06T17:34:04+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -18,7 +18,9 @@
     <link href="http://nukino.github.com/blog/2012/01/06/Octopress/"/>
     <updated>2012-01-06T16:02:00+09:00</updated>
     <id>http://nukino.github.com/blog/2012/01/06/Octopress</id>
-    <content type="html"><![CDATA[<p>以前</p>
+    <content type="html"><![CDATA[<p><a href="http://onibibo.blog.eonet.jp/default/2012/01/octopress-5dd4.html">ここ</a>が元ブログのページ</p>
+
+<p>以前</p>
 
 <ul>
   <li><a href="http://onibibo.blog.eonet.jp/default/2011/12/eoblogmarkdown-64cb.html">eoblogをMarkdown記法で書く</a></li>
