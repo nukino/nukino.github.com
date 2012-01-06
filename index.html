@@ -9,8 +9,7 @@
   <meta name="author" content="nukino">
 
   
-  <meta name="description" content="最近vimでvundleとかpathogenとかでプラグイン管理するのが流行ってるっぽいので、私もやってみたい。
-ついでなのでこの機会にvim環境を再構築してみようと計画してみた。 vim設定の共有化 neobundleでプラグイン管理 今使ってるプラグインの見直し ruby編集環境構築( &hellip;">
+  <meta name="description" content="以前 eoblogをMarkdown記法で書く eoblogをMarkdown記法で書く２(SyntaxHighlighter導入) eoblogをMarkdown記法で書く３(プレビュー) で色々と頑張ってみたけど、運用してると、記事のアップと画像のアップがやっぱり面倒。 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -83,6 +82,340 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2012/01/06/Octopress/">Octopressを試してみる</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-06T16:02:00+09:00" pubdate data-updated="true">2012年01月 6日(Fri)</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>以前</p>
+
+<ul>
+  <li><a href="http://onibibo.blog.eonet.jp/default/2011/12/eoblogmarkdown-64cb.html">eoblogをMarkdown記法で書く</a></li>
+  <li><a href="http://onibibo.blog.eonet.jp/default/2011/12/eoblogmarkdowns-e804.html">eoblogをMarkdown記法で書く２(SyntaxHighlighter導入)</a></li>
+  <li><a href="http://onibibo.blog.eonet.jp/default/2011/12/eoblogmarkdown-2be3.html">eoblogをMarkdown記法で書く３(プレビュー)</a></li>
+</ul>
+
+<p>で色々と頑張ってみたけど、運用してると、記事のアップと画像のアップがやっぱり面倒。</p>
+
+<p>これを自動化するのって結構大変(多分自分でhttpのリクエストとか出すようなスクリプトか何か書かない
+といけないし)だなと考えてましたが、たまたまvimのMarkdownスクリプト探しに行った際にoctopressというのが
+あるのを知ったので、試してみた。</p>
+
+<h2 id="section">導入</h2>
+
+<ul>
+  <li><a href="http://octopress.org/docs/setup/">Octopress Setup</a></li>
+  <li><a href="http://blog.glidenote.com/blog/2011/11/07/install-octopress-on-github/">GithubとOctopressでモダンな技術系ブログを作ってみる</a></li>
+</ul>
+
+<p>などを参考にして導入。</p>
+
+<p>但し書いてあるとおり<code>bundle install</code>とすると、システムのgem領域にrubyライブラリがインストールされてしまう
+ので、</p>
+
+<pre><code>cd octopress
+bundle install --path=vendor/bundle
+</code></pre>
+
+<p>とかすると<code>vendor/bundle</code>内にライブラリがインストールされて、複数のrubyプロジェクトがある場合にライブラリの
+バージョン違いとかで嵌まらなくて済むかも。</p>
+
+<p>gem領域を再構築したい場合は</p>
+
+<pre><code>gem list --local | cut -d" " -f1 | xargs gem uninstall
+</code></pre>
+
+<p>として、システムのgem領域に入ってるライブラリを全部アンインストールした後で必要なライブラリ(bundler
+等)を<code>gem install</code>すればいい。</p>
+
+<h2 id="section-1">見た目のカスタマイズ</h2>
+
+<p>デフォルトのテーマは文字がでかくてイマイチ気に入らなかったので頑張って修正。</p>
+
+<p><code>octopress/sass</code>内のファイルを編集すればいいみたい。</p>
+
+<p>レイアウト自体はいじらずに専ら色や間隔、フォントなどをグチャグチャと調整してみた。
+やってるうちに気付いたが、<code>octopress/sass/custom</code>内のファイルのみ変更するべきだったような気がする。</p>
+
+<p>見た目はかなり希望に近づいたが、コードはなんか機能が分離し切れてないというか構造化がイマイチのような
+感じ。まあ拘ってもしょうがないので暇なときに気が向けば修正しようかな？</p>
+
+<p>Octopress本家の更新かけたり、間違えて<code>rake install</code>とかしたときに消えたりしたら悲しいので</p>
+
+<pre><code>cd octopress
+cp -ar .themes/classic/ .themes/nukino
+cp -arf sass/ .themes/nukino/
+</code></pre>
+
+<p>として新しいテーマを作ってバックアップしておいた。</p>
+
+<h2 id="section-2">運用</h2>
+
+<p>以前の記事にちらっと書いたけど、Windows上で運用すると変な警告出るし、ファイル内に日本語入ってると文
+字コードを何にしてもきちんと動かないし･･･で、諦めた(rubyのデフォルト外部エンコーディングをUTF-8に
+設定できれば動くかも)</p>
+
+<p>今のところ自PCにcoLinux+Ubuntu 10.04入れてサービス化して、SSH経由で動かしてる(octopressフォルダ自体
+はWindows側のファイルをsamba経由でアクセスしてる)</p>
+
+<p>別PCにUbuntu 11.10を入れてSSH経由で動かした場合、previewとかしたときサーバの応答がめっちゃ遅い。</p>
+
+<p>調べてみると、Octopress(正確にはJekyll)が使ってるWEBrickというのが遅いらしい<a href="http://kitbc.s41.xrea.com/main/?ubuntu_network_slow">Ubuntuネットワーク（ssh接続,
+webrickサーバー）が遅い</a>に対策が書いてあったの
+で、<code>/etc/nsswitch.conf</code>の<code>hosts:</code>行の<code>mdns4</code>を削除したら結構ましになった。</p>
+
+<h3 id="section-3">ユーザーページの管理</h3>
+
+<p><a href="http://tokkonopapa.github.com/blog/2011/12/30/octopress-on-github-and-bitbucket/">Octopressのインストールから運用管理まで</a></p>
+
+<p>を参考に</p>
+
+<ol>
+  <li><a href="https://bitbucket.org/">Bitbucket</a>のアカウントを作成(こんなのあるんだ。遅れてるな＞俺)</li>
+  <li><a href="https://bitbucket.org/account/">アカウントのページ</a>のSSH Keysに<code>~/.ssh/id_rsa.pub</code>の内容を貼付
+&amp;Add Key</li>
+  <li><a href="https://bitbucket.org/repo/create">Create new repositry</a>でoctopressを作成(Repositry typeをgitに
+する)</li>
+  <li>以下のコマンドを打つ</li>
+</ol>
+
+<pre><code>cd octopress
+git add .
+git commit -m '&lt;message&gt;'
+git remote add bitbucket git@bitbucket.org:&lt;username&gt;/octopress.git
+git push -u bitbucket source
+</code></pre>
+
+<p>&lt;message&gt;は適当に。&lt;username&gt;はBitbucketのアカウント名。</p>
+
+<p>なお、<code>bundle install</code>時にvendor以外のパスを指定した場合は<code>.gitignore</code>にそのパスを入れておかないと
+rubyライブラリごとpushされると思う(試してないけど)。</p>
+
+<h3 id="ruby">rubyライブラリのアップデート</h3>
+
+<pre><code>bundle update
+</code></pre>
+
+<p>Bundler 1.1を使ってる＆<code>bundle install</code>時にパスを指定した場合、古くて使ってないライブラリを削除して
+くれる。</p>
+
+<p>挙動が変わって嵌まるかもしれないのでバックアップしといた方がいいかも。</p>
+
+<h3 id="section-4">記事作成</h3>
+
+<pre><code>rake new_post['title']
+</code></pre>
+
+<p>なのだが、SSH経由で運用してるため、いちいち打つのが面倒(‘title’に日本語入れたら問題ありそうだし)</p>
+
+<p>別にこのコマンドを打たなくても<code>octopress/source/_posts</code>にファイルを作ったら検出してくれるみたいなので、
+以下のようなvimスクリプトを作って運用してみる。</p>
+
+<p><code>$VIMRUNTIME/autoload/myvimrc.vim</code>に以下</p>
+
+<div><script src="https://gist.github.com/1569662.js?file="></script>
+<noscript><pre><code>func! myvimrc#new_article(title)
+    let l:atitle = a:title
+    if ( l:atitle == &quot;&quot; )
+        let l:atitle = input(&quot;input title:&quot;)
+    endif
+    let l:time = localtime()
+    let l:hantitle = l:atitle
+    &quot;Kaoriya 全角→半角関数があるなら使う
+    if ( exists( &quot;*ToHankaku&quot; ) )
+        let l:hantitle = ToHankaku(l:atitle)
+    endif
+    let l:match_character = '\%([ｳｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾊﾋﾌﾍﾎ]ﾞ\|[ﾊﾋﾌﾍﾎ]ﾟ\|.\)'
+    let l:asctitle = &quot;&quot;
+    let l:ii = 0
+    let l:len = strlen(l:hantitle)
+    &quot; titleのファイル名に使える英数字＆記号だけ抜き出す。
+    while ( l:ii &lt; l:len )
+        let l:char = matchstr(l:hantitle, l:match_character, l:ii)
+        &quot;全角文字は省く
+        if ( l:char =~ '^\f$' &amp;&amp; char2nr(l:char) &lt; 256 )
+            let l:asctitle .= l:char
+        endif
+        let l:ii += strlen(l:char)
+    endwhile
+    if ( l:asctitle == &quot;&quot; )
+        let l:asctitle = &quot;article&quot;
+    endif
+    if ( !exists('g:octopress_rootdir') )
+        let g:octopress_rootdir = '~/octopress'
+    endif
+    if ( !exists('g:octopress_article_ext') )
+        let g:octopress_article_ext = 'markdown'
+    endif
+    let l:fbase = strftime(&quot;%Y-%m-%d-&quot;, l:time) . l:asctitle
+    let l:fname = expand(g:octopress_rootdir) . '/source/_posts/' . l:fbase . '.'  . g:octopress_article_ext
+    let l:is_create = 1
+    if ( findfile(l:fname) != &quot;&quot; )
+        let l:ec = tolower(input(&quot;'&quot;.l:fbase.'.'.g:octopress_article_ext.&quot;' is exist create/overwrite/edit [c/w/e]?:&quot;))
+        if ( l:ec == &quot;w&quot; )
+            call delete(l:fname)
+        elseif (l:ec == &quot;c&quot; )
+            let l:ii = 0
+            while ( 1 )
+                let l:ii += 1
+                let l:fname = expand(g:octopress_rootdir).'/source/_posts/'.l:fbase.'_'.l:ii.'.'.g:octopress_article_ext
+                if ( findfile(l:fname) == &quot;&quot; )
+                    break
+                endif
+            endwhile
+        elseif (l:ec == &quot;e&quot; )
+            let l:is_create = 0
+        else
+            return
+        endif
+    endif
+    if ( l:is_create )
+        let l:utf8title = &quot;&quot;
+        if ( has('iconv') )
+            let l:utf8title = iconv(l:atitle, &amp;enc, &quot;utf-8&quot;)
+        else
+            let l:utf8title = l:atitle
+        endif
+
+        let l:wlines = ['---', 'layout: post']
+        let l:wlines += ['title: &quot;' . l:utf8title . '&quot;']
+        let l:wlines += ['date: '. strftime(&quot;%Y-%m-%d %H:%M&quot;, l:time)]
+        let l:wlines += ['comments: true', 'categories: ', 'description: ', 'keywords: ', '---', '']
+
+        call writefile( l:wlines, l:fname )
+    endif
+    if ( l:asctitle == l:atitle )
+        &quot;タイトルに日本語が含まれない場合、明示的にutf-8にしてみる
+        &quot;タイトルにファイル名に使えない文字が含まれてる場合ここを通らないけど
+        augroup au_oct_new
+            au BufEnter * setl fenc=utf-8
+        augroup END
+    endif
+    execute &quot;edit&quot; . &quot; ++enc=UTF-8 &quot; . l:fname | &quot;normal G&quot;
+    if ( l:asctitle == l:atitle )
+        augroup au_oct_new
+            autocmd!
+        augroup END
+    endif
+endfunc
+</code></pre></noscript></div>
+
+<p><code>_vimrc</code>に以下を追加</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>_vimrc</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+</pre></td><td class="code"><pre><code class="vim"><span class="line">command<span class="p">!</span> <span class="p">-</span>nargs<span class="p">=</span>? OctNewPost <span class="k">call</span> myvimrc#new_article<span class="p">(&lt;</span><span class="k">q</span><span class="p">-</span>args<span class="p">&gt;)</span>
+</span><span class="line"><span class="k">let</span> g:octopress_article_ext <span class="p">=</span> <span class="c">&quot;krd&quot;</span>
+</span><span class="line"><span class="k">let</span> g:octopress_rootdir <span class="p">=</span> <span class="s1">&#39;~/octopress&#39;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>使い方は</p>
+
+<pre><code>:OctNewPost [title]
+</code></pre>
+
+<p>みたいにして使う。titleを省略した場合、入力を求めるように作ってみた。<br />
+vimのキーに割り振るなり、ランチャーにコマンド実行オプション付けてvim起動するように登録するなりすればいい(私は後者)</p>
+
+<p>titleには日本語入れても大丈夫。またファイルの文字コードはUTF-8になるように細工してる。</p>
+
+<p>ファイル名は”yyyy-mm-dd-title.ext”みたいになる。ファイル名に全角文字入れたら不味そうな気がする
+ので、titleの全角文字は省いたファイル名を作るようにしてみた。</p>
+
+<p>但し、<code>match_character</code>はKaoriya-vimに入ってる<code>hz_ja.vim</code>から頂いたが、イマイチ意味が分かってない。
+<code>myvimrc.vim</code>は文字コード(または内部エンコーディング)をshift-jis(cp932)とかにしないと思った通りに
+動かなかったりするのかも。</p>
+
+<hr />
+
+<p>Markdown記法のパーサはデフォルトでは<code>rdiscount</code>が使われている。Jekyllのソースコードを見てみると
+kramdownも対応してるみたいなので、<code>_config.yml</code>を</p>
+
+<pre title="_config.yml"><code>markdown: kramdown
+</code></pre>
+
+<p>に変更して運用。多分他にもmaruku、redcarpetというパーサに対応してるぽい(癖が分からないので試してない)</p>
+
+<p>Vimで拡張子<code>krd</code>の時kramdown用のシンタックスファイル(自作)が有効になるようにしてるので、新規作成時の
+拡張子を<code>krd</code>にしてるが、そうするとJekyllがMarkdown形式ファイルだと認識してくれないので<code>_config.yml</code>に</p>
+
+<pre title="_config.yml"><code>markdown_ext: "markdown,mkd,mkdn,md,krd"
+</code></pre>
+
+<p>を追加して<code>rake generate</code></p>
+
+<h3 id="section-5">記事のプレビュー</h3>
+
+<pre><code>cd octopress
+rake generate	#必要なとき
+rake preview
+</code></pre>
+
+<p>ウチの環境ではSSHクライアントから上記コマンドを打つ。ちょっと面倒。</p>
+
+<p>ブラウザで</p>
+
+<pre><code>http://server-ip-address:4000/
+</code></pre>
+
+<p>を見ると、プレビュー出来る。記事などを更新して、ブラウザを再読込すると自動的に更新してくれる。
+素晴らしい。</p>
+
+<h3 id="section-6">記事の投稿</h3>
+
+<pre><code>cd octopress
+rake generate	#必要なとき
+rake deploy
+</code></pre>
+
+<p>ウチの環境ではSSHクライアントから上記コマンドを打つ。ちょっと面倒。</p>
+
+<p><code>rake gen_deploy</code>とするとgenerateとdeploy両方してくれるみたい。</p>
+
+<h3 id="octopress">Octopressの更新</h3>
+
+<pre><code>git fetch octopress
+git pull octopress master
+</code></pre>
+
+<h2 id="section-7">最後に</h2>
+
+<p>環境の構築に手間取ったが、ローカルで色々テスト出来るし、拡張性は無限大だし、運用も快適に出来そうだ
+し、でかなり良い感じかも。</p>
+
+<p>ということで、たぶん今後はOctopressに乗り換えると思う</p>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2011/12/24/test-post/">vim環境の再構築１(DropBoxでvim設定の共有)</a></h1>
     
     
@@ -100,8 +433,6 @@
 
 
 <time datetime="2011-12-24T05:58:00+09:00" pubdate data-updated="true">2011年12月24日(Sat)</time>
-        
-         | <a href="/blog/2011/12/24/test-post/#disqus_thread">Comments</a>
         
       </p>
     
@@ -232,6 +563,10 @@ SET GVIMINIT=:source %MYGVIMRC%
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/01/06/Octopress/">Octopressを試してみる</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2011/12/24/test-post/">vim環境の再構築１(DropBoxでvim設定の共有)</a>
