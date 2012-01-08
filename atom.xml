@@ -4,7 +4,7 @@
   <title><![CDATA[Nukino's memorandum]]></title>
   <link href="http://nukino.github.com/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2012-01-08T09:18:03+09:00</updated>
+  <updated>2012-01-08T10:46:14+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -122,7 +122,7 @@ endif</code></pre></noscript></div>
 <pre><code>:e scp://user@192.168.0.4/
 </code></pre>
 
-<p>とかするとサーバーのuserホームディレクトリがダーっと表示されます。scpのパスは</p>
+<p>とかするとサーバーのuserホームディレクトリの内容がダーっと表示されます。scpのパスは</p>
 
 <pre><code>scp://[user@]machine[[:#]port]/path
 </code></pre>
