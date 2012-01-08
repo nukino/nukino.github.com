@@ -4,7 +4,7 @@
   <title><![CDATA[Nukino's memorandum]]></title>
   <link href="http://nukino.github.com/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2012-01-07T11:18:36+09:00</updated>
+  <updated>2012-01-08T09:18:03+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -12,6 +12,161 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[vimからSSH/SCP接続してみる]]></title>
+    <link href="http://nukino.github.com/blog/2012/01/08/vimSSH/"/>
+    <updated>2012-01-08T06:10:00+09:00</updated>
+    <id>http://nukino.github.com/blog/2012/01/08/vimSSH</id>
+    <content type="html"><![CDATA[<p>ヘルプを探ってるとvimからSSH/SCP接続出来ることを知ったので、試してみた。</p>
+
+<dl>
+  <dt>クライアントPC</dt>
+  <dd>Windows XP + vim 7.3.393(Kaoriya版)</dd>
+  <dt>サーバーPC</dt>
+  <dd>Ubuntu 11.10</dd>
+</dl>
+
+<p>で確認。「サーバー側にvim入れてSSHクライアント上で動かせば良いんじゃね？」という突っ込みは禁止www</p>
+
+<h2 id="pcssh">サーバーPCにSSHサーバをインストール</h2>
+
+<p>サーバーPCのコマンドラインで</p>
+
+<pre><code>sudo apt-get install ssh
+</code></pre>
+
+<p>とする。別にOpen SSHなどでも構わない。</p>
+
+<h2 id="pcssh-1">クライアントPCにSSHクライアントをインストール</h2>
+
+<p>SSHクライアントはPuTTY 0.60 ごった煮版 2007年8月6日版を使用した。</p>
+
+<p>ダウンロードは<a href="http://yebisuya.dip.jp/Software/PuTTY/">PuTTY ごった煮版</a>から行う。</p>
+
+<p><a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/">本家</a>の方がバージョンは新しい。Windows 7で使う
+ならこちらの方がいいかも。</p>
+
+<p>インストールする場合にはデフォルトのフォルダではなく<code>C:\PuTTy</code>などの空白を含まないパスにインストール
+することを推奨(理由は後述)</p>
+
+<h2 id="myvimrc">$MYVIMRCを編集</h2>
+
+<p>$MYVIMRC(ユーザーvimファイル。一般的には<code>$HOME/_vimrc</code>や<code>$HOME/.vimrc</code>など)を編集し、以下の記述を追
+加(sftpは不要かな？)。</p>
+
+<div><script src="https://gist.github.com/1576194.js?file="></script>
+<noscript><pre><code>if (has('win32') || has('win64'))
+    &quot;use scp
+    let g:netrw_scp_cmd     = &quot;E:\\PuTTY\\pscp.exe -q -batch&quot;
+    let g:netrw_sftp_cmd    = &quot;E:\\PuTTY\\psftp.exe&quot;
+    let g:netrw_ssh_cmd     = &quot;E:\\PuTTY\\plink.exe&quot;
+endif</code></pre></noscript></div>
+
+<p>文字列を’”‘(ダブルクォーテーション)で括ってあるのは試してる際にそうすると何故か動き出したからだが、
+今試すと”’“(シングルクォーテーション)で括っても動くことが判明したので特に意味無しかも<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>。</p>
+
+<p>実行ファイルのパスに空白が入ってると上手く動かない。(ダブルクォーテーションで括っても駄目。
+<code>g:netrw_list_cmd</code>を直接指定すると、最初のファイル一覧は取得できる)</p>
+
+<p>既にPuTTyを空白の入ったフォルダ(<code>C:\Program Files\PuTTy</code>など)にインストールしてしまってる人は</p>
+
+<ol>
+  <li>空白の入らないフォルダ(<code>C:\PuTTy</code>など)に再インストール</li>
+  <li>PuTTyのあるインストールフォルダにPATHを通して、<code>g:netrw_scp_cmd</code>などに実行ファイル名のみ指定</li>
+  <li>空白の入らないフォルダにジャンクション/シンボリックリンクする</li>
+  <li>空白の入らないフォルダにPuTTyフォルダの中身をコピーする</li>
+</ol>
+
+<p>のうちお好きなのをどうぞ。</p>
+
+<h2 id="ssh">SSH接続を公開鍵認証に変更</h2>
+
+<p>このままだとSCP/SSH接続しようとした際にユーザー名/パスワード入力の部分で止まる(vimからプロンプトが出
+ない)。</p>
+
+<p>そこで、公開鍵認証＋pageantでパスワード認証を自動化する(サーバーが1つしかないならplink.exeに-pwオプ
+ション付けとくというのでもいいけど)。</p>
+
+<p>具体的な設定方法は<a href="http://www.atmarkit.co.jp/flinux/rensai/buildlamp/lamp_05/05_1.html">公開鍵認証でsshを安全に使う</a>を参照。</p>
+
+<p>上記のサイトを読めばちゃんと書いてあるが、公開鍵をサーバーに設置する際[公開鍵の保存]ボタンで保
+存したファイルを使っちゃ駄目です。PuTTy鍵生成ダイアログ上部のテキストを貼り付けませう←ここで少し
+嵌まった。</p>
+
+<p>上記サイトでは<code>/etc/ssh/sshd_config</code>の編集方法があまり詳しく載ってないので補完しておくと(大体分かると思うけど)</p>
+
+<p>33行目の”#”を外す</p>
+
+<pre><code>AuthorizedKeysFile      %h/.ssh/authorized_keys
+</code></pre>
+
+<p>パスワード認証を無効化するには55行目のコメントを外してyes→no</p>
+
+<pre><code>PasswordAuthentication no
+</code></pre>
+
+<p>としてサーバー上で</p>
+
+<pre><code>/etc/init.d/ssh restart
+</code></pre>
+
+<p>とすれば設定が有効化します。</p>
+
+<p>pageantで作った秘密鍵を追加しとくのを忘れずに。</p>
+
+<h2 id="section">使い方</h2>
+
+<p>クライアント上のvimで</p>
+
+<pre><code>:e scp://user@192.168.0.4/
+</code></pre>
+
+<p>とかするとサーバーのuserホームディレクトリがダーっと表示されます。scpのパスは</p>
+
+<pre><code>scp://[user@]machine[[:#]port]/path
+</code></pre>
+
+<p>と指定できるみたいです。(pathの末尾が”/”だとディレクトリを意味する)<br />
+但しpathは指定したuserのホームディレクトリからの相対パスになるので、絶対パスにしたい場合は</p>
+
+<pre><code>:e scp://root@192.168.0.4//etc/ssh/
+</code></pre>
+
+<p>とか</p>
+
+<pre><code>:e scp://root@192.168.0.4//etc/ssh/sshd_config
+</code></pre>
+
+<p>みたいに先頭に”/”を付けます。</p>
+
+<p>あと詳しい使い方はvimで</p>
+
+<pre><code>:h netrw
+</code></pre>
+
+<p>参照。</p>
+
+<h2 id="section-1">感想</h2>
+
+<p>別件でやりたいことがあって調べてた際に見つけて試してみたけど、vimって色んな事が出来ることを再認識。</p>
+
+<p>ディレクトリ移動とかは1回ずつSSH接続しに行くみたいなので、動作はかなりもっさりしている。</p>
+
+<p>サーバーにvimを入れられない環境なら便利かもしれないが、自宅で使う場合はサーバー側にvim入れちゃった方
+が速くてスマート。</p>
+
+<hr />
+
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p>実行ファイルのパスに空白が入ってるときは’&#8221;’で括らないと駄目。とかそういうことなのかも<a href="#fnref:1" rel="reference">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Octopressを試してみる]]></title>
@@ -306,13 +461,22 @@ rake deploy
 
 <p><code>rake gen_deploy</code>とするとgenerateとdeploy両方してくれるみたい。</p>
 
+<h3 id="section-7">キャッシュの削除</h3>
+
+<pre><code>rake clean
+</code></pre>
+
+<p><code>.pygments-cache</code>、<code>.gist-cache</code>、<code>.sass-cache</code>内のファイルと<code>source/stylesheets/screen.css</code>を削除。</p>
+
+<p>作業してると溜まってくるので定期的に実行するといい･･･のかな？</p>
+
 <h3 id="octopress">Octopressの更新</h3>
 
 <pre><code>git fetch octopress
 git pull octopress master
 </code></pre>
 
-<h2 id="section-7">最後に</h2>
+<h2 id="section-8">最後に</h2>
 
 <p>環境の構築に手間取ったが、ローカルで色々テスト出来るし、拡張性は無限大だし、運用も快適に出来そうだ
 し、でかなり良い感じかも。</p>

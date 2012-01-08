@@ -390,13 +390,22 @@ rake deploy
 
 <p><code>rake gen_deploy</code>とするとgenerateとdeploy両方してくれるみたい。</p>
 
+<h3 id="section-7">キャッシュの削除</h3>
+
+<pre><code>rake clean
+</code></pre>
+
+<p><code>.pygments-cache</code>、<code>.gist-cache</code>、<code>.sass-cache</code>内のファイルと<code>source/stylesheets/screen.css</code>を削除。</p>
+
+<p>作業してると溜まってくるので定期的に実行するといい･･･のかな？</p>
+
 <h3 id="octopress">Octopressの更新</h3>
 
 <pre><code>git fetch octopress
 git pull octopress master
 </code></pre>
 
-<h2 id="section-7">最後に</h2>
+<h2 id="section-8">最後に</h2>
 
 <p>環境の構築に手間取ったが、ローカルで色々テスト出来るし、拡張性は無限大だし、運用も快適に出来そうだ
 し、でかなり良い感じかも。</p>
@@ -451,6 +460,8 @@ git pull octopress master
         <a class="basic-alignment left" href="/blog/2011/12/24/test-post/" title="Previous Post: vim環境の再構築１(DropBoxでvim設定の共有)">&laquo; vim環境の再構築１(DropBoxでvim設定の共有)</a>
       
       
+        <a class="basic-alignment right" href="/blog/2012/01/08/vimSSH/" title="next Post: vimからSSH/SCP接続してみる">vimからSSH/SCP接続してみる &raquo;</a>
+      
     </p>
   </footer>
 </article>
@@ -473,6 +484,10 @@ git pull octopress master
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/01/08/vimSSH/">vimからSSH/SCP接続してみる</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2012/01/06/Octopress/">Octopressを試してみる</a>
