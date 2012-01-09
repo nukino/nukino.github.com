@@ -1,0 +1,325 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>vimのhelpgrepで日本語が使えない場合 - Nukino's memorandum</title>
+  <meta name="author" content="nukino">
+
+  
+  <meta name="description" content="help内をgrep検索できるhelpgrep(＆lhelpgrep)なるコマンドがあることを最近知った(←遅い)。 しかし、私が使ってるvim(vim 7.3.393 Kaoriya版)では、helpgrepで日本語検索が出来ない。 (このページ)[https://github.com/vim- &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://nukino.github.com/blog/2012/01/10/helpgrep">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Nukino's memorandum" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27974112-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Nukino's memorandum</a></h1>
+  
+    <h2>とあるソフト屋の覚え書き</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:nukino.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Vimのhelpgrepで日本語が使えない場合</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-10T00:14:00+09:00" pubdate data-updated="true">2012年01月10日(Tue)</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>help内をgrep検索できるhelpgrep(＆lhelpgrep)なるコマンドがあることを最近知った(←遅い)。</p>
+
+<p>しかし、私が使ってるvim(vim 7.3.393 Kaoriya版)では、helpgrepで日本語検索が出来ない。</p>
+
+<p>(このページ)[https://github.com/vim-jp/issues/issues/95]に依ると、内部エンコーディングがUTF-8以外の場合×みた
+いなので、<code>_vimrc</code>に</p>
+
+<pre><code>set enc=utf-8
+</code></pre>
+
+<p>と書けばおｋ･･･なのだが、内部エンコーディングはあまり変えたくないので、helpgrep(&amp;lhelpgrep)に渡す文字列、返ってきた文字列を変換するようにしてみた。</p>
+
+<p><code>_vimrc</code>に以下を追加する。</p>
+
+<div><script src="https://gist.github.com/1583365.js?file="></script>
+<noscript><pre><code>func! FuncJHelpgrep(strg, type)
+    if ( &amp;enc != &quot;utf-8&quot; )
+        if ( !has('iconv') )
+            echohl ErrorMsg | echomsg 'Not support iconv' | echohl None
+            return
+        endif
+        if ( a:type == 0 )
+            let scmd = &quot;helpgrep &quot;
+        else
+            let scmd = &quot;lhelpgrep &quot;
+        endif
+        &quot;検索結果をUTF-8に変換
+        let sfind = iconv(a:strg, &amp;enc, &quot;utf-8&quot;)
+        exe scmd . sfind
+        if ( a:type == 0 )
+            let flist = getqflist()
+        else
+            &quot;ヘルプウィンドウを検索
+            let l:bufnrlist = tabpagebuflist()
+            let nr_helpw = -1
+            for i in bufnrlist
+                if ( getbufvar(i, &quot;&amp;filetype&quot;) == &quot;help&quot; )
+                    let nr_helpw = bufwinnr(i)
+                    break
+                endif
+            endfor
+            if ( nr_helpw == -1 )
+                echohl ErrorMsg | echomsg 'Not found Help Window' | echohl None
+                return
+            else
+                let flist = getloclist(nr_helpw)
+            endif
+        endif
+        for l in flist
+            let l.text = iconv(l.text, &quot;utf-8&quot;, &amp;enc)
+        endfor
+        if ( a:type == 0 )
+            call setqflist(flist)
+        else
+            call setloclist(nr_helpw, flist)
+        endif
+    else
+        helpgrep a:strg
+    endif
+endfunc
+
+&quot;コマンド
+command! -nargs=1 Jhelpg        call FuncJHelpgrep(&lt;q-args&gt;, 0)
+command! -nargs=1 Jlhelpg       call FuncJHelpgrep(&lt;q-args&gt;, 1)</code></pre></noscript></div>
+
+<p>Jhelpgコマンドがhelpgrep、Jlhelpgコマンドがlhelpgrepに相当する。</p>
+
+<pre><code>:Jhelpg 検索文字列
+:Jlhelpg 検索文字列 のように使用する。`_vimrc`に関数書くと常にロードされるから嫌な場合はautoload関数にすればいい。
+</code></pre>
+
+<p>QuickFix、ロケーションリストの文字化けは直してあるが、画面下部に表示されるメッセージの文字化けは直してない。</p>
+
+<p>まあそのうちvimが修正されると思うけど。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">nukino</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-10T00:14:00+09:00" pubdate data-updated="true">2012年01月10日(Tue)</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/vim/'>vim</a>, <a class='category' href='/blog/categories/vim-tips/'>vim-tips</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://nukino.github.com/blog/2012/01/10/helpgrep/" data-via="" data-counturl="http://nukino.github.com/blog/2012/01/10/helpgrep/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/01/08/vimSSH/" title="Previous Post: vimからSSH/SCP接続してみる">&laquo; vimからSSH/SCP接続してみる</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+  <p>本職は組み込み系の30代Cプログラマ</p>
+  <p>Windows専用でLinuxとかは基本専門外。いつか使いこなせるようになりたいと夢見てる</p>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/01/10/helpgrep/">vimのhelpgrepで日本語が使えない場合</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/08/vimSSH/">vimからSSH/SCP接続してみる</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/06/Octopress/">Octopressを試してみる</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/24/test-post/">vim環境の再構築１(DropBoxでvim設定の共有)</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - nukino -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'nukinosmemorandum';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://nukino.github.com/blog/2012/01/10/helpgrep/';
+        var disqus_url = 'http://nukino.github.com/blog/2012/01/10/helpgrep/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

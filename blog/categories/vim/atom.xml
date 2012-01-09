@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vim | Nukino's memorandum]]></title>
   <link href="http://nukino.github.com/blog/categories/vim/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2012-01-08T16:19:55+09:00</updated>
+  <updated>2012-01-10T00:37:12+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -12,6 +12,89 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[vimのhelpgrepで日本語が使えない場合]]></title>
+    <link href="http://nukino.github.com/blog/2012/01/10/helpgrep/"/>
+    <updated>2012-01-10T00:14:00+09:00</updated>
+    <id>http://nukino.github.com/blog/2012/01/10/helpgrep</id>
+    <content type="html"><![CDATA[<p>help内をgrep検索できるhelpgrep(＆lhelpgrep)なるコマンドがあることを最近知った(←遅い)。</p>
+
+<p>しかし、私が使ってるvim(vim 7.3.393 Kaoriya版)では、helpgrepで日本語検索が出来ない。</p>
+
+<p>(このページ)[https://github.com/vim-jp/issues/issues/95]に依ると、内部エンコーディングがUTF-8以外の場合×みた
+いなので、<code>_vimrc</code>に</p>
+
+<pre><code>set enc=utf-8
+</code></pre>
+
+<p>と書けばおｋ･･･なのだが、内部エンコーディングはあまり変えたくないので、helpgrep(&amp;lhelpgrep)に渡す文字列、返ってきた文字列を変換するようにしてみた。</p>
+
+<p><code>_vimrc</code>に以下を追加する。</p>
+
+<p><div><script src='https://gist.github.com/1583365.js?file='></script>
+<noscript><pre><code>func! FuncJHelpgrep(strg, type)
+    if ( &amp;enc != &quot;utf-8&quot; )
+        if ( !has('iconv') )
+            echohl ErrorMsg | echomsg 'Not support iconv' | echohl None
+            return
+        endif
+        if ( a:type == 0 )
+            let scmd = &quot;helpgrep &quot;
+        else
+            let scmd = &quot;lhelpgrep &quot;
+        endif
+        &quot;検索結果をUTF-8に変換
+        let sfind = iconv(a:strg, &amp;enc, &quot;utf-8&quot;)
+        exe scmd . sfind
+        if ( a:type == 0 )
+            let flist = getqflist()
+        else
+            &quot;ヘルプウィンドウを検索
+            let l:bufnrlist = tabpagebuflist()
+            let nr_helpw = -1
+            for i in bufnrlist
+                if ( getbufvar(i, &quot;&amp;filetype&quot;) == &quot;help&quot; )
+                    let nr_helpw = bufwinnr(i)
+                    break
+                endif
+            endfor
+            if ( nr_helpw == -1 )
+                echohl ErrorMsg | echomsg 'Not found Help Window' | echohl None
+                return
+            else
+                let flist = getloclist(nr_helpw)
+            endif
+        endif
+        for l in flist
+            let l.text = iconv(l.text, &quot;utf-8&quot;, &amp;enc)
+        endfor
+        if ( a:type == 0 )
+            call setqflist(flist)
+        else
+            call setloclist(nr_helpw, flist)
+        endif
+    else
+        helpgrep a:strg
+    endif
+endfunc
+
+&quot;コマンド
+command! -nargs=1 Jhelpg        call FuncJHelpgrep(&lt;q-args&gt;, 0)
+command! -nargs=1 Jlhelpg       call FuncJHelpgrep(&lt;q-args&gt;, 1)</code></pre></noscript></div>
+</p>
+
+<p>Jhelpgコマンドがhelpgrep、Jlhelpgコマンドがlhelpgrepに相当する。</p>
+
+<pre><code>:Jhelpg 検索文字列
+:Jlhelpg 検索文字列 のように使用する。`_vimrc`に関数書くと常にロードされるから嫌な場合はautoload関数にすればいい。
+</code></pre>
+
+<p>QuickFix、ロケーションリストの文字化けは直してあるが、画面下部に表示されるメッセージの文字化けは直してない。</p>
+
+<p>まあそのうちvimが修正されると思うけど。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[vimからSSH/SCP接続してみる]]></title>
