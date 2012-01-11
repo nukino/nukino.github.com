@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vim-tips | Nukino's memorandum]]></title>
   <link href="http://nukino.github.com/blog/categories/vim-tips/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2012-01-10T00:41:26+09:00</updated>
+  <updated>2012-01-11T17:31:13+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -87,8 +87,10 @@ command! -nargs=1 Jlhelpg       call FuncJHelpgrep(&lt;q-args&gt;, 1)</code></pr
 <p>Jhelpgコマンドがhelpgrep、Jlhelpgコマンドがlhelpgrepに相当する。</p>
 
 <pre><code>:Jhelpg 検索文字列
-:Jlhelpg 検索文字列 のように使用する。`_vimrc`に関数書くと常にロードされるから嫌な場合はautoload関数にすればいい。
+:Jlhelpg 検索文字列
 </code></pre>
+
+<p>のように使用する。<code>_vimrc</code>に関数書くと常にロードされるから嫌な場合はautoload関数にすればいい。</p>
 
 <p>QuickFix、ロケーションリストの文字化けは直してあるが、画面下部に表示されるメッセージの文字化けは直してない。</p>
 

@@ -170,8 +170,10 @@ command! -nargs=1 Jlhelpg       call FuncJHelpgrep(&lt;q-args&gt;, 1)</code></pr
 <p>Jhelpgコマンドがhelpgrep、Jlhelpgコマンドがlhelpgrepに相当する。</p>
 
 <pre><code>:Jhelpg 検索文字列
-:Jlhelpg 検索文字列 のように使用する。`_vimrc`に関数書くと常にロードされるから嫌な場合はautoload関数にすればいい。
+:Jlhelpg 検索文字列
 </code></pre>
+
+<p>のように使用する。<code>_vimrc</code>に関数書くと常にロードされるから嫌な場合はautoload関数にすればいい。</p>
 
 <p>QuickFix、ロケーションリストの文字化けは直してあるが、画面下部に表示されるメッセージの文字化けは直してない。</p>
 
@@ -212,7 +214,7 @@ command! -nargs=1 Jlhelpg       call FuncJHelpgrep(&lt;q-args&gt;, 1)</code></pr
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://nukino.github.com/blog/2012/01/10/helpgrep/" data-via="" data-counturl="http://nukino.github.com/blog/2012/01/10/helpgrep/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://nukino.github.com/blog/2012/01/10/helpgrep/" data-via="nukino_j" data-counturl="http://nukino.github.com/blog/2012/01/10/helpgrep/" >Tweet</a>
   
   
   
@@ -266,6 +268,22 @@ command! -nargs=1 Jlhelpg       call FuncJHelpgrep(&lt;q-args&gt;, 1)</code></pr
   </ul>
 </section>
 
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("nukino_j", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/nukino_j" class="twitter-follow-button" data-show-count="false">Follow @nukino_j</a>
+  
+</section>
 
 
 

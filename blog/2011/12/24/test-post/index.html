@@ -240,7 +240,7 @@ SET GVIMINIT=:source %MYGVIMRC%
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://nukino.github.com/blog/2011/12/24/test-post/" data-via="" data-counturl="http://nukino.github.com/blog/2011/12/24/test-post/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://nukino.github.com/blog/2011/12/24/test-post/" data-via="nukino_j" data-counturl="http://nukino.github.com/blog/2011/12/24/test-post/" >Tweet</a>
   
   
   
@@ -294,6 +294,22 @@ SET GVIMINIT=:source %MYGVIMRC%
   </ul>
 </section>
 
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("nukino_j", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/nukino_j" class="twitter-follow-button" data-show-count="false">Follow @nukino_j</a>
+  
+</section>
 
 
 
