@@ -1,0 +1,485 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Octopress記事作成スクリプトを修正してみた - Nukino's memorandum</title>
+  <meta name="author" content="nukino">
+
+  
+  <meta name="description" content="以前Octopressを試してみるで、Octopress記事作
+成スクリプトを掲示したが、これを変更してみた。 変更点は サブディレクトリの指定 YAML Front Matterに published:の追加 YAML Front Matterのcategories:、keywords: &hellip;">
+  <meta name="keywords" content="vim, smpl2">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://nukino.github.com/blog/2012/01/12/Octopress">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Nukino's memorandum" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27974112-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Nukino's memorandum</a></h1>
+  
+    <h2>とあるソフト屋の覚え書き</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:nukino.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Octopress記事作成スクリプトを修正してみた</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-12T00:19:00+09:00" pubdate data-updated="true">2012年01月12日(Thu)</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>以前<a href="http://nukino.github.com/blog/2012/01/06/Octopress/">Octopressを試してみる</a>で、Octopress記事作
+成スクリプトを掲示したが、これを変更してみた。</p>
+
+<p>変更点は</p>
+
+<ol>
+  <li>サブディレクトリの指定</li>
+  <li>YAML Front Matterに published:の追加</li>
+  <li>YAML Front Matterのcategories:、keywords:に初期値追加</li>
+  <li>続きを読む(<code>&lt;!-- more --&gt;</code>)の追加</li>
+</ol>
+
+<!-- more -->
+
+<h2 id="section">変更点の説明</h2>
+
+<h3 id="section-1">サブディレクトリの指定</h3>
+
+<p><code>octopress_dir/source/_post</code>にサブディレクトリを作ってもちゃんと記事を認識してくれるみたい。</p>
+
+<p>月毎にディレクトリ作っておいた方が管理が楽そうなので、それに対応させるように
+<code>g:octopress_article_subdir</code>変数を追加。</p>
+
+<pre><code>let g:octopress_article_subdir = '%Y-%m'
+</code></pre>
+
+<p>のように指定。文字列には strftime()で使用できる書式指定コードを指定可能。</p>
+
+<p>Kaoriya版なら、VC2010なので<a href="http://msdn.microsoft.com/ja-jp/library/fe06s4ak.aspx">Visual Studio 2010のstrftime()</a>を参照。</p>
+
+<p>gccでコンパイルされてるなら<a href="http://linuxjm.sourceforge.jp/html/LDP_man-pages/man3/strftime.3.html">Manpage of strftime</a>になるのかな？</p>
+
+<p>サブフォルダが存在しない場合は自動的に作られる(vimのmkdir()が存在すれば)。また’%Y/%m’のように複数階
+層になっても動くはず。</p>
+
+<h3 id="published-">:published の追加</h3>
+
+<p>下書き機能ってないのかな？と<a href="http://octopress.org/docs/blogging/">Octopress Document-Blogging Basics</a>を見てるとYAML Front Matterに<code>published: false</code>と指定すれば良い
+ことが分かった。</p>
+
+<p>その時わざわざ追加するのもうざいので、記事の先頭部分に<code>published:</code>を追加するようにしてみた(初期値はtrue)</p>
+
+<h3 id="categorieskeywords">categories:、keywords:に初期値追加</h3>
+
+<p>いつも「書式どうだったっけ？」と思うので、<code>categories:</code>と<code>keywords:</code>にダミー初期値を出力するようにし
+てみた。</p>
+
+<p>鬱陶しいならソースを修正しといてください</p>
+
+<h3 id="more---">続きを読む<code>&lt;!-- more --&gt;</code>の追加</h3>
+
+<p>記事中に<code>&lt;!-- more --&gt;</code>があると「続きを読む」リンクが表示される。</p>
+
+<p>毎回打つのも面倒なので、末尾に追加するようにしてみた。</p>
+
+<p>なお表記はデフォルトでは「Read on →」となるが、これを変更したい場合<code>_config.yml</code>の</p>
+
+<pre><code>excerpt_link: "Read on &amp;rarr;"  # "Continue reading" link text at the bottom of excerpted articles
+</code></pre>
+
+<p>を変更すればよい。</p>
+
+<h2 id="section-2">ソースコード</h2>
+
+<div><script src="https://gist.github.com/1597341.js?file="></script>
+<noscript><pre><code>&quot;Octopress 新記事作成
+&quot;
+&quot;使用するグローバル変数
+&quot;  g:octopress_rootdir        octopressルートディレクトリ
+&quot;  g:octopress_article_ext    記事の拡張子
+&quot;  g:octopress_article_subdir 記事のサブフォルダ。strftime()のパラメータ(%Y等)
+&quot;                             使用可能
+&quot;
+&quot; 2012/01/06  新規作成
+&quot; 2012/01/11  category,keywordに初期値を入れた
+&quot;             publishedフィールド追加
+&quot;             g:octopress_article_subdir追加
+&quot;             
+func! myvimrc#new_article(title)
+  let l:atitle = a:title
+  if ( l:atitle == &quot;&quot; )
+    let l:atitle = input(&quot;input title:&quot;)
+  endif
+  let l:time = localtime()
+  let l:hantitle = l:atitle
+  &quot;Kaoriya 全角→半角関数があるなら使う
+  if ( exists( &quot;*ToHankaku&quot; ) )
+    let l:hantitle = ToHankaku(l:atitle)
+  endif
+  &quot; match_characterはKaoriyaのhz_ja.vimより。意味はよく分からん。
+  let l:match_character = '\%([ｳｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾊﾋﾌﾍﾎ]ﾞ\|[ﾊﾋﾌﾍﾎ]ﾟ\|.\)'
+  let l:asctitle = &quot;&quot;
+  let l:ii = 0
+  let l:len = strlen(l:hantitle)
+  &quot; titleのファイル名に使える英数字＆記号だけ抜き出す。
+  while ( l:ii &lt; l:len )
+      let l:char = matchstr(l:hantitle, l:match_character, l:ii)
+    &quot;2バイト文字は省く
+    if ( l:char =~ '^\f$' &amp;&amp; char2nr(l:char) &lt; 256 )
+      let l:asctitle .= l:char
+    endif
+    let l:ii += strlen(l:char)
+  endwhile
+  if ( l:asctitle == &quot;&quot; )
+    let l:asctitle = &quot;article&quot;
+  endif
+  let article_dir = get(g:, 'octopress_rootdir', '~/octopress') . '/source/_posts/'  
+  let sub_dir = strftime(get(g:, 'octopress_article_subdir', ''), l:time)
+  if ( sub_dir != '' )
+    if ( finddir( article_dir . sub_dir ) == '' )
+      if ( exists( &quot;*mkdir&quot; ) )
+        let article_dir .= l:sub_dir
+        call mkdir( article_dir, &quot;p&quot; )
+      else
+        &quot;作れない場合は_postsに置いとく
+        echohl ErrorMsg | echomsg 'mkdirをサポートしてません _postに置いておきます' | echohl None
+      endif
+    else
+      let article_dir .= l:sub_dir
+    endif
+    let last_char = article_dir[strlen(article_dir)-1]
+    if ( last_char != '/' &amp;&amp; last_char != '\' )
+      let article_dir .= '/'
+    endif
+  endif
+
+  let article_ext = get(g:, 'octopress_article_ext', 'markdown')
+
+  let l:fbase = strftime(&quot;%Y-%m-%d-&quot;, l:time) . l:asctitle
+  let l:fname = article_dir . l:fbase . '.'  . article_ext
+  let l:is_create = 1
+  if ( findfile(l:fname) != &quot;&quot; )
+    let l:ec = tolower(input(&quot;'&quot;.l:fbase.'.'.article_ext.&quot;' is exist create/overwrite/edit [c/w/e]?:&quot;))
+    if ( l:ec == &quot;w&quot; )
+      call delete(l:fname)
+    elseif (l:ec == &quot;c&quot; )
+      let l:ii = 0
+      while ( 1 )
+        let l:ii += 1
+        let l:fname = article_dir . l:fbase.'_'.l:ii.'.' . article_ext
+        if ( findfile(l:fname) == &quot;&quot; )
+          break
+        endif
+      endwhile
+    elseif (l:ec == &quot;e&quot; )
+      let l:is_create = 0
+    else
+      return
+    endif
+  endif
+  if ( l:is_create )
+    let l:utf8title = &quot;&quot;
+    if ( has('iconv') )
+      let l:utf8title = iconv(l:atitle, &amp;enc, &quot;utf-8&quot;)
+    else
+      let l:utf8title = l:atitle
+    endif
+
+    let l:wlines = ['---', 'layout: post']
+    let l:wlines += ['title: &quot;' . l:utf8title . '&quot;']
+    let l:wlines += ['date: '. strftime(&quot;%Y-%m-%d %H:%M&quot;, l:time)]
+    let l:wlines += ['comments: true', 'published: true', 'categories: [cat1, cat2]']
+    let l:wlines += ['description: ', 'keywords: key1, key2', '---', '',&quot;&lt;!-- more --&gt;&quot;]
+
+    call writefile( l:wlines, l:fname )
+  endif
+  if ( l:asctitle == l:atitle )
+    &quot;タイトルに日本語が含まれない場合、明示的にutf-8にしてみる
+    &quot;タイトルにファイル名に使えない文字が含まれてる場合ここを通らないけど
+    augroup au_oct_new
+      au BufEnter * setl fenc=utf-8
+    augroup END
+  endif
+  execute &quot;edit&quot; . &quot; ++enc=UTF-8 &quot; . l:fname | &quot;normal G&quot;
+  if ( l:asctitle == l:atitle )
+    augroup au_oct_new
+      autocmd!
+    augroup END
+  endif
+endfunc
+</code></pre></noscript></div>
+
+<p>そのうちプラグインにするかも。</p>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">nukino</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-12T00:19:00+09:00" pubdate data-updated="true">2012年01月12日(Thu)</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/octopress/'>Octopress</a>, <a class='category' href='/blog/categories/vim/'>vim</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://nukino.github.com/blog/2012/01/12/Octopress/" data-via="nukino_j" data-counturl="http://nukino.github.com/blog/2012/01/12/Octopress/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/01/10/helpgrep/" title="Previous Post: vimのhelpgrepで日本語が使えない場合">&laquo; vimのhelpgrepで日本語が使えない場合</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+  <p>本職は組み込み系の30代Cプログラマ</p>
+  <p>Windows専用でLinuxとかは基本専門外。いつか使いこなせるようになりたいと夢見てる</p>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/01/12/Octopress/">Octopress記事作成スクリプトを修正してみた</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/10/helpgrep/">vimのhelpgrepで日本語が使えない場合</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/08/vimSSH/">vimからSSH/SCP接続してみる</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/06/Octopress/">Octopressを試してみる</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/24/test-post/">vim環境の再構築１(DropBoxでvim設定の共有)</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Github Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/nukino">@nukino</a> on Github
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'nukino',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("nukino_j", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/nukino_j" class="twitter-follow-button" data-show-count="false">Follow @nukino_j</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - nukino -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'nukinosmemorandum';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://nukino.github.com/blog/2012/01/12/Octopress/';
+        var disqus_url = 'http://nukino.github.com/blog/2012/01/12/Octopress/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

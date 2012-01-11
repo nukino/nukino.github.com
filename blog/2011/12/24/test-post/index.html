@@ -115,7 +115,8 @@
 
 <p>こんな感じの計画かな？</p>
 
-<h2 id="vim">vim設定の共有化について</h2>
+<!-- more -->
+<p>##vim設定の共有化について</p>
 
 <p>使ってるPCでプラグインやその他設定が一致していると便利。</p>
 
@@ -276,6 +277,10 @@ SET GVIMINIT=:source %MYGVIMRC%
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2012/01/12/Octopress/">Octopress記事作成スクリプトを修正してみた</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/01/10/helpgrep/">vimのhelpgrepで日本語が使えない場合</a>
       </li>
     
@@ -292,6 +297,35 @@ SET GVIMINIT=:source %MYGVIMRC%
       </li>
     
   </ul>
+</section>
+
+<section>
+  <h1>Github Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/nukino">@nukino</a> on Github
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'nukino',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
 </section>
 
 

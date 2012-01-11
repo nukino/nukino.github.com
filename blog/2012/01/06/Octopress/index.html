@@ -118,6 +118,8 @@
 といけないし)だなと考えてましたが、たまたまvimのMarkdownスクリプト探しに行った際にoctopressというのが
 あるのを知ったので、試してみた。</p>
 
+<!-- more -->
+
 <h2 id="section">導入</h2>
 
 <ul>
@@ -228,92 +230,123 @@ rubyライブラリごとpushされると思う(試してないけど)。</p>
 <p>別にこのコマンドを打たなくても<code>octopress/source/_posts</code>にファイルを作ったら検出してくれるみたいなので、
 以下のようなvimスクリプトを作って運用してみる。</p>
 
-<p><code>$VIMRUNTIME/autoload/myvimrc.vim</code>に以下</p>
+<p><code>$VIMRUNTIME/autoload/myvimrc.vim</code>に以下(12/01/12修正。詳しくは<a href="/blog/2012/01/12/Octopress/">こちら</a>)</p>
 
-<div><script src="https://gist.github.com/1569662.js?file="></script>
-<noscript><pre><code>func! myvimrc#new_article(title)
-    let l:atitle = a:title
-    if ( l:atitle == &quot;&quot; )
-        let l:atitle = input(&quot;input title:&quot;)
+<div><script src="https://gist.github.com/1597341.js?file="></script>
+<noscript><pre><code>&quot;Octopress 新記事作成
+&quot;
+&quot;使用するグローバル変数
+&quot;  g:octopress_rootdir        octopressルートディレクトリ
+&quot;  g:octopress_article_ext    記事の拡張子
+&quot;  g:octopress_article_subdir 記事のサブフォルダ。strftime()のパラメータ(%Y等)
+&quot;                             使用可能
+&quot;
+&quot; 2012/01/06  新規作成
+&quot; 2012/01/11  category,keywordに初期値を入れた
+&quot;             publishedフィールド追加
+&quot;             g:octopress_article_subdir追加
+&quot;             
+func! myvimrc#new_article(title)
+  let l:atitle = a:title
+  if ( l:atitle == &quot;&quot; )
+    let l:atitle = input(&quot;input title:&quot;)
+  endif
+  let l:time = localtime()
+  let l:hantitle = l:atitle
+  &quot;Kaoriya 全角→半角関数があるなら使う
+  if ( exists( &quot;*ToHankaku&quot; ) )
+    let l:hantitle = ToHankaku(l:atitle)
+  endif
+  &quot; match_characterはKaoriyaのhz_ja.vimより。意味はよく分からん。
+  let l:match_character = '\%([ｳｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾊﾋﾌﾍﾎ]ﾞ\|[ﾊﾋﾌﾍﾎ]ﾟ\|.\)'
+  let l:asctitle = &quot;&quot;
+  let l:ii = 0
+  let l:len = strlen(l:hantitle)
+  &quot; titleのファイル名に使える英数字＆記号だけ抜き出す。
+  while ( l:ii &lt; l:len )
+      let l:char = matchstr(l:hantitle, l:match_character, l:ii)
+    &quot;2バイト文字は省く
+    if ( l:char =~ '^\f$' &amp;&amp; char2nr(l:char) &lt; 256 )
+      let l:asctitle .= l:char
     endif
-    let l:time = localtime()
-    let l:hantitle = l:atitle
-    &quot;Kaoriya 全角→半角関数があるなら使う
-    if ( exists( &quot;*ToHankaku&quot; ) )
-        let l:hantitle = ToHankaku(l:atitle)
+    let l:ii += strlen(l:char)
+  endwhile
+  if ( l:asctitle == &quot;&quot; )
+    let l:asctitle = &quot;article&quot;
+  endif
+  let article_dir = get(g:, 'octopress_rootdir', '~/octopress') . '/source/_posts/'  
+  let sub_dir = strftime(get(g:, 'octopress_article_subdir', ''), l:time)
+  if ( sub_dir != '' )
+    if ( finddir( article_dir . sub_dir ) == '' )
+      if ( exists( &quot;*mkdir&quot; ) )
+        let article_dir .= l:sub_dir
+        call mkdir( article_dir, &quot;p&quot; )
+      else
+        &quot;作れない場合は_postsに置いとく
+        echohl ErrorMsg | echomsg 'mkdirをサポートしてません _postに置いておきます' | echohl None
+      endif
+    else
+      let article_dir .= l:sub_dir
     endif
-    let l:match_character = '\%([ｳｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾊﾋﾌﾍﾎ]ﾞ\|[ﾊﾋﾌﾍﾎ]ﾟ\|.\)'
-    let l:asctitle = &quot;&quot;
-    let l:ii = 0
-    let l:len = strlen(l:hantitle)
-    &quot; titleのファイル名に使える英数字＆記号だけ抜き出す。
-    while ( l:ii &lt; l:len )
-        let l:char = matchstr(l:hantitle, l:match_character, l:ii)
-        &quot;全角文字は省く
-        if ( l:char =~ '^\f$' &amp;&amp; char2nr(l:char) &lt; 256 )
-            let l:asctitle .= l:char
-        endif
-        let l:ii += strlen(l:char)
-    endwhile
-    if ( l:asctitle == &quot;&quot; )
-        let l:asctitle = &quot;article&quot;
+    let last_char = article_dir[strlen(article_dir)-1]
+    if ( last_char != '/' &amp;&amp; last_char != '\' )
+      let article_dir .= '/'
     endif
-    if ( !exists('g:octopress_rootdir') )
-        let g:octopress_rootdir = '~/octopress'
-    endif
-    if ( !exists('g:octopress_article_ext') )
-        let g:octopress_article_ext = 'markdown'
-    endif
-    let l:fbase = strftime(&quot;%Y-%m-%d-&quot;, l:time) . l:asctitle
-    let l:fname = expand(g:octopress_rootdir) . '/source/_posts/' . l:fbase . '.'  . g:octopress_article_ext
-    let l:is_create = 1
-    if ( findfile(l:fname) != &quot;&quot; )
-        let l:ec = tolower(input(&quot;'&quot;.l:fbase.'.'.g:octopress_article_ext.&quot;' is exist create/overwrite/edit [c/w/e]?:&quot;))
-        if ( l:ec == &quot;w&quot; )
-            call delete(l:fname)
-        elseif (l:ec == &quot;c&quot; )
-            let l:ii = 0
-            while ( 1 )
-                let l:ii += 1
-                let l:fname = expand(g:octopress_rootdir).'/source/_posts/'.l:fbase.'_'.l:ii.'.'.g:octopress_article_ext
-                if ( findfile(l:fname) == &quot;&quot; )
-                    break
-                endif
-            endwhile
-        elseif (l:ec == &quot;e&quot; )
-            let l:is_create = 0
-        else
-            return
-        endif
-    endif
-    if ( l:is_create )
-        let l:utf8title = &quot;&quot;
-        if ( has('iconv') )
-            let l:utf8title = iconv(l:atitle, &amp;enc, &quot;utf-8&quot;)
-        else
-            let l:utf8title = l:atitle
-        endif
+  endif
 
-        let l:wlines = ['---', 'layout: post']
-        let l:wlines += ['title: &quot;' . l:utf8title . '&quot;']
-        let l:wlines += ['date: '. strftime(&quot;%Y-%m-%d %H:%M&quot;, l:time)]
-        let l:wlines += ['comments: true', 'categories: ', 'description: ', 'keywords: ', '---', '']
+  let article_ext = get(g:, 'octopress_article_ext', 'markdown')
 
-        call writefile( l:wlines, l:fname )
+  let l:fbase = strftime(&quot;%Y-%m-%d-&quot;, l:time) . l:asctitle
+  let l:fname = article_dir . l:fbase . '.'  . article_ext
+  let l:is_create = 1
+  if ( findfile(l:fname) != &quot;&quot; )
+    let l:ec = tolower(input(&quot;'&quot;.l:fbase.'.'.article_ext.&quot;' is exist create/overwrite/edit [c/w/e]?:&quot;))
+    if ( l:ec == &quot;w&quot; )
+      call delete(l:fname)
+    elseif (l:ec == &quot;c&quot; )
+      let l:ii = 0
+      while ( 1 )
+        let l:ii += 1
+        let l:fname = article_dir . l:fbase.'_'.l:ii.'.' . article_ext
+        if ( findfile(l:fname) == &quot;&quot; )
+          break
+        endif
+      endwhile
+    elseif (l:ec == &quot;e&quot; )
+      let l:is_create = 0
+    else
+      return
     endif
-    if ( l:asctitle == l:atitle )
-        &quot;タイトルに日本語が含まれない場合、明示的にutf-8にしてみる
-        &quot;タイトルにファイル名に使えない文字が含まれてる場合ここを通らないけど
-        augroup au_oct_new
-            au BufEnter * setl fenc=utf-8
-        augroup END
+  endif
+  if ( l:is_create )
+    let l:utf8title = &quot;&quot;
+    if ( has('iconv') )
+      let l:utf8title = iconv(l:atitle, &amp;enc, &quot;utf-8&quot;)
+    else
+      let l:utf8title = l:atitle
     endif
-    execute &quot;edit&quot; . &quot; ++enc=UTF-8 &quot; . l:fname | &quot;normal G&quot;
-    if ( l:asctitle == l:atitle )
-        augroup au_oct_new
-            autocmd!
-        augroup END
-    endif
+
+    let l:wlines = ['---', 'layout: post']
+    let l:wlines += ['title: &quot;' . l:utf8title . '&quot;']
+    let l:wlines += ['date: '. strftime(&quot;%Y-%m-%d %H:%M&quot;, l:time)]
+    let l:wlines += ['comments: true', 'published: true', 'categories: [cat1, cat2]']
+    let l:wlines += ['description: ', 'keywords: key1, key2', '---', '',&quot;&lt;!-- more --&gt;&quot;]
+
+    call writefile( l:wlines, l:fname )
+  endif
+  if ( l:asctitle == l:atitle )
+    &quot;タイトルに日本語が含まれない場合、明示的にutf-8にしてみる
+    &quot;タイトルにファイル名に使えない文字が含まれてる場合ここを通らないけど
+    augroup au_oct_new
+      au BufEnter * setl fenc=utf-8
+    augroup END
+  endif
+  execute &quot;edit&quot; . &quot; ++enc=UTF-8 &quot; . l:fname | &quot;normal G&quot;
+  if ( l:asctitle == l:atitle )
+    augroup au_oct_new
+      autocmd!
+    augroup END
+  endif
 endfunc
 </code></pre></noscript></div>
 
@@ -486,6 +519,10 @@ git pull octopress master
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2012/01/12/Octopress/">Octopress記事作成スクリプトを修正してみた</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/01/10/helpgrep/">vimのhelpgrepで日本語が使えない場合</a>
       </li>
     
@@ -502,6 +539,35 @@ git pull octopress master
       </li>
     
   </ul>
+</section>
+
+<section>
+  <h1>Github Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/nukino">@nukino</a> on Github
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'nukino',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
 </section>
 
 

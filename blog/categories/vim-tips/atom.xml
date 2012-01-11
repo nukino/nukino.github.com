@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vim-tips | Nukino's memorandum]]></title>
   <link href="http://nukino.github.com/blog/categories/vim-tips/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2012-01-11T17:31:13+09:00</updated>
+  <updated>2012-01-12T08:15:24+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -29,6 +29,8 @@
 </code></pre>
 
 <p>と書けばおｋ･･･なのだが、内部エンコーディングはあまり変えたくないので、helpgrep(&amp;lhelpgrep)に渡す文字列、返ってきた文字列を変換するようにしてみた。</p>
+
+<!-- more -->
 
 <p><code>_vimrc</code>に以下を追加する。</p>
 
