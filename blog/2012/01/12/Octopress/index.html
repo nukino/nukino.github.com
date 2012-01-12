@@ -167,6 +167,8 @@
 
 <h2 id="section-2">ソースコード</h2>
 
+<p><code>$VIMRUNTIME/autoload/myvimrc.vim</code>に以下を追加</p>
+
 <div><script src="https://gist.github.com/1597341.js?file="></script>
 <noscript><pre><code>&quot;Octopress 新記事作成
 &quot;
@@ -285,7 +287,57 @@ func! myvimrc#new_article(title)
 endfunc
 </code></pre></noscript></div>
 
+<p><code>$MYVIMRC</code>に以下を追加</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>_vimrc</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+</pre></td><td class="code"><pre><code class="vim"><span class="line">command<span class="p">!</span> <span class="p">-</span>nargs<span class="p">=</span>? OctNewPost <span class="k">call</span> myvimrc#new_article<span class="p">(&lt;</span><span class="k">q</span><span class="p">-</span>args<span class="p">&gt;)</span>
+</span><span class="line"><span class="c">&quot;設定サンプル</span>
+</span><span class="line"><span class="k">let</span> g:octopress_article_ext <span class="p">=</span> <span class="c">&quot;krd&quot;</span>
+</span><span class="line"><span class="k">let</span> g:octopress_rootdir <span class="p">=</span> expand<span class="p">(</span><span class="s1">&#39;$OCTOPRESS_DIR&#39;</span><span class="p">)</span>
+</span><span class="line"><span class="k">let</span> g:octopress_article_subdir <span class="p">=</span> <span class="s1">&#39;%Y-%m&#39;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
 <p>そのうちプラグインにするかも。</p>
+
+<h2 id="section-3">実行と出力サンプル</h2>
+
+<p>今日の日付が2012/01/12で上記設定サンプルが有効な場合にvim上で</p>
+
+<pre><code>:OctNewPost Octopressを試してみる
+</code></pre>
+
+<p>などとして実行すると<code>$OCTOPRESS_DIR/source/_post/2012-01/2012-01-12-Octopress.krd</code>
+ができる</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>2012-01-12-Octopress.krd</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+</pre></td><td class="code"><pre><code class="yaml"><span class="line"><span class="nn">---</span>
+</span><span class="line"><span class="l-Scalar-Plain">layout</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">post</span>
+</span><span class="line"><span class="l-Scalar-Plain">title</span><span class="p-Indicator">:</span> <span class="s">&quot;Octopressを試してみる&quot;</span>
+</span><span class="line"><span class="l-Scalar-Plain">date</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">2012-01-12 09:08</span>
+</span><span class="line"><span class="l-Scalar-Plain">comments</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
+</span><span class="line"><span class="l-Scalar-Plain">published</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
+</span><span class="line"><span class="l-Scalar-Plain">categories</span><span class="p-Indicator">:</span> <span class="p-Indicator">[</span><span class="nv">cat1</span><span class="p-Indicator">,</span> <span class="nv">cat2</span><span class="p-Indicator">]</span>
+</span><span class="line"><span class="l-Scalar-Plain">description</span><span class="p-Indicator">:</span>
+</span><span class="line"><span class="l-Scalar-Plain">keywords</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">key1, key2</span>
+</span><span class="line"><span class="nn">---</span>
+</span><span class="line">
+</span><span class="line"><span class="l-Scalar-Plain">&lt;!-- more --&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
 
 </div>
 

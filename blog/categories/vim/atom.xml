@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vim | Nukino's memorandum]]></title>
   <link href="http://nukino.github.com/blog/categories/vim/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2012-01-12T08:19:48+09:00</updated>
+  <updated>2012-01-12T09:12:04+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -81,6 +81,8 @@
 <p>を変更すればよい。</p>
 
 <h2 id="section-2">ソースコード</h2>
+
+<p><code>$VIMRUNTIME/autoload/myvimrc.vim</code>に以下を追加</p>
 
 <p><div><script src='https://gist.github.com/1597341.js?file='></script>
 <noscript><pre><code>&quot;Octopress 新記事作成
@@ -201,7 +203,42 @@ endfunc
 </code></pre></noscript></div>
 </p>
 
+<p><code>$MYVIMRC</code>に以下を追加</p>
+
+<p><code>vim _vimrc
+command! -nargs=? OctNewPost call myvimrc#new_article(&lt;q-args&gt;)
+"設定サンプル
+let g:octopress_article_ext = "krd"
+let g:octopress_rootdir = expand('$OCTOPRESS_DIR')
+let g:octopress_article_subdir = '%Y-%m'
+</code></p>
+
 <p>そのうちプラグインにするかも。</p>
+
+<h2 id="section-3">実行と出力サンプル</h2>
+
+<p>今日の日付が2012/01/12で上記設定サンプルが有効な場合にvim上で</p>
+
+<pre><code>:OctNewPost Octopressを試してみる
+</code></pre>
+
+<p>などとして実行すると<code>$OCTOPRESS_DIR/source/_post/2012-01/2012-01-12-Octopress.krd</code>
+ができる</p>
+
+<h2 id="yaml-2012-01-12-octopresskrd">``` yaml 2012-01-12-Octopress.krd</h2>
+<p>layout: post
+title: “Octopressを試してみる”
+date: 2012-01-12 09:08
+comments: true
+published: true
+categories: [cat1, cat2]
+description: 
+keywords: key1, key2
+—</p>
+
+<!-- more -->
+
+<p>```</p>
 
 ]]></content>
   </entry>
