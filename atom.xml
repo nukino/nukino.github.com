@@ -4,7 +4,7 @@
   <title><![CDATA[Nukino's memorandum]]></title>
   <link href="http://nukino.github.com/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2012-01-16T11:20:01+09:00</updated>
+  <updated>2012-01-16T15:43:24+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -201,6 +201,15 @@ anonymous投稿出来たりするみたいだが、使ったことはない。</
 
 <p>のように説明が表示されて、管理がしやすいように思う。</p>
 
+<p>また</p>
+
+<pre><code>:Gist -s 2012/01/16 15:33
+</code></pre>
+
+<p>みたいに空白を入れると上手く動かない。空白の後ろ部分(先の例だと15:33)が説明となる。
+gistの制限でそうしてあるのか単純にGist.vimのバグかまでは調べてない。全角スペースなら問題ないので、区
+切りが欲しい場合は全角スペースで区切ると良い。</p>
+
 <h2 id="gistvim-3">Gist.vimヘルパースクリプト</h2>
 
 <p>毎回-sオプション付けて説明指定するのは面倒なので、それを自動的に付けてしまおう。
@@ -246,7 +255,7 @@ anonymous投稿出来たりするみたいだが、使ったことはない。</
   <dd>ユーザー記述。毎回入力を求められる。</dd>
 </dl>
 
-<p>です </p>
+<p>です。先ほど述べたようにスペースを入れないように注意！</p>
 
 <h4 id="section-8">更新</h4>
 
@@ -741,8 +750,8 @@ command! -nargs=1 Jlhelpg       call FuncJHelpgrep(&lt;q-args&gt;, 1)</code></pr
 <p>で確認。「サーバー側にvim入れてSSHクライアント上で動かせば良いんじゃね？」という突っ込みは禁止www</p>
 
 <!-- more -->
-<p>サーバーPCにSSHサーバをインストール
-—</p>
+
+<h2 id="pcssh">サーバーPCにSSHサーバをインストール</h2>
 
 <p>サーバーPCのコマンドラインで</p>
 
@@ -751,7 +760,7 @@ command! -nargs=1 Jlhelpg       call FuncJHelpgrep(&lt;q-args&gt;, 1)</code></pr
 
 <p>とする。別にOpen SSHなどでも構わない。</p>
 
-<h2 id="pcssh">クライアントPCにSSHクライアントをインストール</h2>
+<h2 id="pcssh-1">クライアントPCにSSHクライアントをインストール</h2>
 
 <p>SSHクライアントはPuTTY 0.60 ごった煮版 2007年8月6日版を使用した。</p>
 
