@@ -4,7 +4,7 @@
   <title><![CDATA[Category: octopress | Nukino's memorandum]]></title>
   <link href="http://nukino.github.com/blog/categories/octopress/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2012-01-14T02:14:11+09:00</updated>
+  <updated>2012-01-16T11:20:01+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -12,6 +12,389 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Gist.vimの導入とヘルパースクリプトの作成]]></title>
+    <link href="http://nukino.github.com/blog/2012/01/16/gist_vim/"/>
+    <updated>2012-01-16T11:11:00+09:00</updated>
+    <id>http://nukino.github.com/blog/2012/01/16/gist_vim</id>
+    <content type="html"><![CDATA[<p>Octopressで記事を書くにあたってGistにコード貼ったり、それをVim上で管理できるGist.vimを導入したんです
+が、その際に少し嵌まったのでその解決法と使ってる内にもう少し便利にしたいな―。という欲求がフツフツと
+沸いてきたので、vimスクリプトを書いてみた。</p>
+
+<p>環境はWindows XP(SP3)+vim 7.3.393(Kaoriya版)。</p>
+
+<!-- more -->
+
+<h2 id="gistvim">Gist.vimの導入</h2>
+
+<h3 id="curl">cURLのダウンロードとインストール</h3>
+
+<p>Windows系の場合、まずはcURLは標準で入ってないのでダウンロードする必要がある。
+(linux系なら多分最初から入ってる。Macも最近のなら入ってるのかな？)</p>
+
+<p><a href="http://curl.haxx.se/download.html">cURL-Download</a></p>
+
+<p>よりダウンロード。cygwinは使ってないので、</p>
+
+<pre><code>Win32 - Generic
+|   Win32 2000/XP   7.23.1  binary  SSL enabled         Gunter Knauf    1.33 MB
+</code></pre>
+
+<p>をダウンロードしてみた。インストーラは付いてないので解凍して</p>
+
+<pre><code>curl.exe
+libcurl.dll
+libeay32.dll
+libssl32.dll
+</code></pre>
+
+<p>の4ファイルをパスの通ったフォルダにコピー(または解凍したフォルダにパスを通す)すればおｋ。</p>
+
+<h3 id="gistvim-1">Gist.vimのインストール</h3>
+
+<p>通常のvimプラグインと一緒。</p>
+
+<ul>
+  <li><a href="http://www.vim.org/scripts/script.php?script_id=2423">Gist.vim - vim online</a></li>
+  <li><a href="https://github.com/mattn/gist-vim">Gist.vim - GitHub</a></li>
+</ul>
+
+<p>のどちらかからダウンロード＆解凍して、<code>$VIMRUNTIME</code>にコピーすればいい。</p>
+
+<p>vimプラグイン管理を使ってるなら<code>$MYVIMRC</code>に</p>
+
+<pre><code>NeoBundle 'mattn/gist-vim'
+</code></pre>
+
+<p>とか書いてインストール(<code>:NeoBundleInstall</code>)すればいい(使ってる管理プラグインによって$MYVIMRCの書き方
+やExコマンドは違う。ここではNeoBundleの例)</p>
+
+<h3 id="section">設定</h3>
+
+<p><code>$MYVIMRC</code>に以下を記述</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>$MYVIMRC(ex.vimrc)  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='vim'><span class='line'>    <span class="k">let</span> g:github_user <span class="p">=</span> &amp;<span class="k">lt</span>;input your username&amp;gt;
+</span><span class='line'>    <span class="k">let</span> g:github_token <span class="p">=</span> &amp;<span class="k">lt</span>;input your token&amp;gt;
+</span><span class='line'>    <span class="k">let</span> g:gist_curl_options <span class="p">=</span> “<span class="p">-</span><span class="k">k</span>”
+</span><span class='line'>    <span class="k">let</span> g:gist_detect_filetype <span class="p">=</span> <span class="m">1</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p><code>g:github_user</code>や<code>g:github_token</code>を設定しておくとgitコマンドが動かないので若干高速化する(筈)。</p>
+
+<p>ちなみに<code>g:github_token</code>は<a href="https://github.com/account/admin">Github→Account Setting→Account Admin</a>の以下の部分を参照すれば良い。</p>
+
+<p><img src="/images/2012/01/15/img00.png" alt="API Token" width="350" /></p>
+
+<p><code>g:gist_curl_options</code>を指定しないとGist.vimが動かなかったので調べて、同じコマンドをコマンドラインか
+ら打ってみると</p>
+
+<pre><code>curl: (60) SSL certificate problem, verify that the CA cert is OK. Details:
+error:14090086:SSL routines:SSL3_GET_SERVER_CERTIFICATE:certificate verify failed
+More details here: http://curl.haxx.se/docs/sslcerts.html
+
+curl performs SSL certificate verification by default, using a "bundle"
+ of Certificate Authority (CA) public keys (CA certs). If the default
+ bundle file isn't adequate, you can specify an alternate file
+ using the --cacert option.
+If this HTTPS server uses a certificate signed by a CA represented in
+ the bundle, the certificate verification probably failed due to a
+ problem with the certificate (it might be expired, or the name might
+ not match the domain name in the URL).
+If you'd like to turn off curl's verification of the certificate, use
+ the -k (or --insecure) option.
+</code></pre>
+
+<p>てな表示が出た。SSL証明書の確認が出来ないので、確認を無視するには’-k’オプション指定してね。と書いて
+あると見て、とりあえず<code>g:gist_curl_options</code>に<code>-k</code>を指定してみた。</p>
+
+<p>なんか臭いものに蓋をしただけのような気もする。正しい解決策を誰か教えて。</p>
+
+<h2 id="gistvim-2">Gist.vimの(基本的な)使い方</h2>
+
+<h3 id="post">投稿(Post)</h3>
+
+<pre><code>:Gist [-P|-p]
+</code></pre>
+
+<p><code>-p</code>を付けるとprivate、<code>-P</code>を付けるとpublicで投稿される。何も付けないと<code>g:gist_private</code>の値に従う。
+(デフォルトはpublic)</p>
+
+<p>範囲指定可能なので</p>
+
+<pre><code>:6,20Gist
+</code></pre>
+
+<p>とすると、6行目から20行目までを投稿できる。</p>
+
+<p>通常はVisual modeで選択した後”:”を入力すると自動的に選択範囲が範囲指定されるので、それを使う。</p>
+
+<p>他にも<code>-m</code>を付けたら現在開いてるバッファ分の複数ファイルのgistを作成できたり、<code>-a</code>を付けると
+anonymous投稿出来たりするみたいだが、使ったことはない。</p>
+
+<h3 id="section-1">一覧取得</h3>
+
+<pre><code>:Gist -l [user]
+</code></pre>
+
+<p>でgist一覧を取得できる。userを指定しない場合は自分となる。</p>
+
+<pre><code>:Gist -la
+</code></pre>
+
+<p>で自分のpublicとprivate全てのgist一覧を取得できる。</p>
+
+<h3 id="section-2">編集</h3>
+
+<p>一覧取得したバッファで[Enter]を押すかまたは</p>
+
+<pre><code>:Gist gist-id
+</code></pre>
+
+<p>とgist-idを指定したコマンドを実行すればgist編集バッファで編集が出来る</p>
+
+<h3 id="section-3">更新</h3>
+
+<p>gist編集バッファ内で</p>
+
+<pre><code>:w[rite]
+</code></pre>
+
+<p>または</p>
+
+<pre><code>:Gist -e
+</code></pre>
+
+<p>とすると編集バッファの内容を更新できる。</p>
+
+<h3 id="section-4">削除</h3>
+
+<p>間違えて投稿してしまった場合、gist編集バッファ内で</p>
+
+<pre><code>:Gist -d
+</code></pre>
+
+<p>とすると、編集しているgist-idが削除される。</p>
+
+<pre><code>:Gist -d gist-id
+</code></pre>
+
+<p>みたいにgist-idを指定して削除とかは出来ないみたい。(誤操作防止のため？？)</p>
+
+<h3 id="description">説明(description)指定</h3>
+
+<p>投稿、更新コマンド時に</p>
+
+<pre><code>:Gist -s ほげほげ
+:Gist -e -s ほげほげ
+</code></pre>
+
+<p>と<code>-s &lt;description&gt;</code>とすると説明(description)を指定できる。説明を指定しておくと、一覧表示の際の画面
+が</p>
+
+<p><img src="/images/2012/01/15/img01.png" alt="一覧画面" /></p>
+
+<p>のように説明が表示されて、管理がしやすいように思う。</p>
+
+<h2 id="gistvim-3">Gist.vimヘルパースクリプト</h2>
+
+<p>毎回-sオプション付けて説明指定するのは面倒なので、それを自動的に付けてしまおう。
+というスクリプトです。</p>
+
+<p>導入が若干面倒なので、プラグインにしてしまった方が良いような気もする。<br />
+まあ要望があれば考えると言うことで・・・。</p>
+
+<h3 id="section-5">インストール</h3>
+
+<p><a href="https://gist.github.com/1606832">ここ</a>からファイルをダウンロードして、
+<code>$VIMRUNTIME/autoload/gist_vim_helper.vim</code>に保存。</p>
+
+<p><code>$MYVIMRC</code>に以下を追加</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>$MYVIMRC(ex.vimrc)  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='vim'><span class='line'>    command<span class="p">!</span> <span class="p">-</span>nargs<span class="p">=</span>? <span class="p">-</span>range<span class="p">=</span>% GHPostGist <span class="k">call</span> gist_vim_helper#post_cmd<span class="p">(&lt;</span>count<span class="p">&gt;,</span> <span class="p">&lt;</span>line1<span class="p">&gt;,</span> <span class="p">&lt;</span>line2<span class="p">&gt;,</span> <span class="p">&lt;</span><span class="k">f</span><span class="p">-</span>args<span class="p">&gt;)</span>
+</span><span class='line'>    command<span class="p">!</span> <span class="p">-</span>nargs<span class="p">=</span>? <span class="p">-</span>range<span class="p">=</span>% GHEditGist <span class="k">call</span> gist_vim_helper#edit_cmd<span class="p">(&lt;</span>count<span class="p">&gt;,</span> <span class="p">&lt;</span>line1<span class="p">&gt;,</span> <span class="p">&lt;</span>line2<span class="p">&gt;,</span> <span class="p">&lt;</span><span class="k">f</span><span class="p">-</span>args<span class="p">&gt;)</span>
+</span><span class='line'>    command<span class="p">!</span> <span class="p">-</span>nargs<span class="p">=</span>? <span class="p">-</span>range<span class="p">=</span>% GHAutoGist <span class="k">call</span> gist_vim_helper#auto_cmd<span class="p">(&lt;</span>count<span class="p">&gt;,</span> <span class="p">&lt;</span>line1<span class="p">&gt;,</span> <span class="p">&lt;</span>line2<span class="p">&gt;,</span> <span class="p">&lt;</span><span class="k">f</span><span class="p">-</span>args<span class="p">&gt;)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></f-args></line2></line1></count></f-args></line2></line1></count></f-args></line2></line1></count></p>
+
+<h3 id="section-6">使い方</h3>
+
+<h4 id="section-7">投稿</h4>
+
+<pre><code>:GHPostGist [is_private]
+</code></pre>
+
+<p>が<code>:Gist -P</code>または<code>:Gist -p</code>コマンドの代替コマンド。<code>g:gist_vim_helper_new_desc</code>変数に従った説明を付
+加する。<code>is_private</code>が1なら<code>:Gist -p</code>、0なら<code>:Gist -P</code>、省略時は<code>:Gist</code>コマンドが発行される。</p>
+
+<p><code>g:gist_vim_helper_new_desc</code>に指定できるフォーマットは</p>
+
+<dl>
+  <dt>%Y,%m,%dなど</dt>
+  <dd><code>strftmime()</code>関数で指定可能な日付時刻指定子</dd>
+  <dt>$f</dt>
+  <dd>投稿するファイル名</dd>
+  <dt>$d</dt>
+  <dd>ユーザー記述。毎回入力を求められる。</dd>
+</dl>
+
+<p>です </p>
+
+<h4 id="section-8">更新</h4>
+
+<pre><code>:GHEditGist [is_private] [is_close]
+</code></pre>
+
+<p>が<code>:Gist -e</code>コマンドの代替。<code>is_private</code>は指定しても無意味。将来的にGist.vimがprivate→publicとかに対応す
+るかもしれないので、付けてある。<code>is_close</code>に1を指定すると更新が成功したらgist編集バッファを閉じる。
+<code>g:gist_vim_helper_edit_desc</code>変数に従った説明を付ける。</p>
+
+<p><code>g:gist_vim_helper_edit_desc</code>に指定できるフォーマットは<code>g:gist_vim_helper_edit_desc</code>と同様。</p>
+
+<p>ただし<code>$d</code>を指定した際は入力求める際の初期値が現在の説明になってるので、不要な部分を適宜削除する必要
+がある。</p>
+
+<h4 id="section-9">投稿または更新を自動判別</h4>
+
+<pre><code>:GHAutoGist [is_private] [is_close]
+</code></pre>
+
+<p>はgist編集バッファ内で実行すると<code>:GHEditGist [is_private] [is_close]</code>コマンド、それ以外のバッファで
+実行すると、<code>:GHPostGist [is_private]</code>コマンドを実行する。</p>
+
+<p>結構便利。</p>
+
+<h3 id="section-10">設定例</h3>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>$MYVIMRC(ex.vimrc)  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='vim'><span class='line'>    <span class="k">let</span> g:gist_vim_helper_new_desc  <span class="p">=</span> “[%Y%<span class="k">m</span>%<span class="k">d</span><span class="p">-</span>%H%M]$<span class="k">f</span>/$<span class="k">d</span>”
+</span><span class='line'>    “説明に作成日時を付加する
+</span><span class='line'>    <span class="k">let</span> g:gist_vim_helper_edit_desc <span class="p">=</span> “”
+</span><span class='line'>    “説明に更新日時を付加する場合コメントアウト
+</span><span class='line'>    “<span class="k">let</span> g:gist_vim_helper_edit_desc <span class="p">=</span> “[%Y%<span class="k">m</span>%<span class="k">d</span><span class="p">-</span>%H%M]$<span class="k">f</span><span class="sr">/$d”&lt;/</span><span class="k">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="k">pre</span><span class="p">&gt;&lt;</span>code<span class="p">&gt;</span><span class="nb">noremap</span> &amp;<span class="k">lt</span>;<span class="k">silent</span>&amp;gt;&amp;<span class="k">lt</span>;Space&amp;gt;<span class="nb">gp</span> :GHPostGist <span class="m">0</span>&amp;<span class="k">lt</span>;CR&amp;gt;
+</span><span class='line'><span class="nb">noremap</span> &amp;<span class="k">lt</span>;<span class="k">silent</span>&amp;gt;&amp;<span class="k">lt</span>;Space&amp;gt;ge :GHEditGist <span class="m">0</span> <span class="m">0</span>&amp;<span class="k">lt</span>;CR&amp;gt;
+</span><span class='line'><span class="nb">noremap</span> &amp;<span class="k">lt</span>;<span class="k">silent</span>&amp;gt;&amp;<span class="k">lt</span>;Space&amp;gt;ga :GHAutoGist <span class="m">0</span> <span class="m">1</span>&amp;<span class="k">lt</span>;CR&amp;gt;
+</span><span class='line'>nnoremap &amp;<span class="k">lt</span>;Space&amp;gt;gl        :&amp;<span class="k">lt</span>;C<span class="p">-</span><span class="k">u</span>&amp;gt;echo <span class="c">&quot;please wait...&quot;&amp;lt;CR&amp;gt; :Gist -l&amp;lt;CR&amp;gt;</span>
+</span><span class='line'>nnoremap &amp;<span class="k">lt</span>;Space&amp;gt;gdel      :&amp;<span class="k">lt</span>;C<span class="p">-</span><span class="k">u</span>&amp;gt;Gist <span class="p">-</span><span class="k">d</span>&amp;<span class="k">lt</span>;CR&amp;gt; :<span class="k">close</span>&amp;<span class="k">lt</span>;CR&amp;gt;
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+</code></pre>
+
+<p>キー定義は適当に変更する。<code>&lt;Space&gt;gl</code>、<code>&lt;Space&gt;gdel</code>はおまけ。</p>
+
+<h3 id="gistvim-4">Gist.vimの修正(必要ならば)</h3>
+
+<p><code>g:gist_vim_helper_edit_desc</code>に値を設定した場合、<code>:GHEditGist</code>(または<code>:GHAutoGist</code>)コマンド
+で更新すると説明が更新されるが、</p>
+
+<pre><code>:w[rite]
+</code></pre>
+
+<p>とすると、説明が更新されない。それが気に入らない人は<code>$VIMRUNTIME/autoload/gist.vim</code>の<code>s:GistWrite()</code>
+関数(319行目くらい？)を以下のように変更する。</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>gist.vim  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='diff'><span class='line'>    function! s:GistWrite(fname)
+</span><span class='line'>      if substitute(a:fname, ‘\’, ‘/’, ‘g’) == expand(“%:p:gs@\@/@”)
+</span><span class='line'>—     Gist -e
+</span><span class='line'><span class="gi">+++     1,1call gist_vim_helper#edit(0,0)</span>
+</span><span class='line'>      else
+</span><span class='line'>        exe “w”.(v:cmdbang ? “!” : “”) fnameescape(v:cmdarg) fnameescape(a:fname)
+</span><span class='line'>        silent! exe “file” fnameescape(a:fname)
+</span><span class='line'>        silent! au! BufWriteCmd &lt;buffer&gt;
+</span><span class='line'>      endif
+</span><span class='line'>    endfunction
+</span></code></pre></td></tr></table></div></figure></notextile></div></buffer></p>
+
+<p>追加する部分は</p>
+
+<pre><code>call gist_vim_helper#edit_cmd(-1, 1, 1, 0, 0)
+</code></pre>
+
+<p>でもいいかもしれない。</p>
+
+<h2 id="octopressgist-tag">Octopressで使用する場合にGist Tagを貼り付ける</h2>
+
+<p><code>:Gist </code>コマンドで記事をポストすると<code>g:gist_put_url_to_clipboard_after_post</code>が1の時、</p>
+
+<pre><code>https://gist.github.com/1606832
+</code></pre>
+
+<p>のようなURL(‘1606832’の部分はGist-ID)がクリップボードに貼り付けられる。またOctopressには</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span> (gist-tag)</span> <a href='/downloads/code/2012-01/14/gist-tag'>download</a></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="p">{</span><span class="o">%</span> <span class="nx">gist</span> <span class="nx">gist_id</span> <span class="p">[</span><span class="nx">filename</span><span class="p">]</span> <span class="o">%</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>と記事に書けばGistコードをページに貼り付けてくれる”Gist Tag”という便利なプラグインが存在する。</p>
+
+<p>ということでクリップボードから貼り付けて、ちょっと変更加えればGistコードをページに埋め込むことが出来
+る･･･んだけど、数回やっただけで面倒くさくなってきた(スペースの有無とか間違えて、Octopress Document
+見に行ったりしてるし)。</p>
+
+<p>ということで変換して貼り付けてくれるvimスクリプトを書いてみた。</p>
+
+<p><div><script src='https://gist.github.com/1606941.js?file='></script>
+<noscript><pre><code>func! s:paste_gist_tag()
+  let mx = 'http[s]\?://gist.github.com/\([0-9]\+\)'
+  &quot; +または&quot;レジスタの中身を検索する
+  let regs = [@+,@&quot;]
+  for r in regs
+    let mlist = matchlist(r, mx)
+    if ( len(mlist) &gt; 2 )
+      &quot;カーソル行の前の行先頭に挿入する
+      exe &quot;normal! O\&lt;C-W&gt;{% gist &quot; . mlist[1] . &quot; %}&quot;
+      return
+    endif
+  endif
+endfunc
+
+&quot;コマンド
+command! -nargs=0 PasteGist     call &lt;SID&gt;paste_gist_tag()</code></pre></noscript></div>
+</p>
+
+<p>上記コードを$MYVIMRC(または<code>$VIMRUNTIME/ftplugin/markdown</code>とか)に貼り付ければ、vim上で</p>
+
+<pre><code>:PasteGist
+</code></pre>
+
+<p>とExコマンド打てば、カーソル行にGist Tagが貼り付けられる(クリップボードにGistのURLがないと駄目)。</p>
+
+<p>カーソル行の後に貼り付けるようにしたいのなら9行目の<code>normal O{</code>→<code>normal o{</code>とかにすればおｋ。</p>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Octopress記事作成スクリプトを修正してみた]]></title>
