@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vim-tips | Nukino's memorandum]]></title>
   <link href="http://nukino.github.com/blog/categories/vim-tips/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2012-01-26T01:39:12+09:00</updated>
+  <updated>2012-01-26T06:46:41+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -97,6 +97,13 @@ command! -nargs=1 Jlhelpg       call FuncJHelpgrep(&lt;q-args&gt;, 1)</code></pr
 <p>QuickFix、ロケーションリストの文字化けは直してあるが、画面下部に表示されるメッセージの文字化けは直してない。</p>
 
 <p>まあそのうちvimが修正されると思うけど。</p>
+
+<hr />
+
+<h4 id="section">追記(2012/01/25)</h4>
+
+<p>vim 7.3.409(2012/01/21 Kaoriya版)で修正を確認(helpgrepで日本語検索可能)</p>
+
 ]]></content>
   </entry>
   
