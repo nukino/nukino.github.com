@@ -1,0 +1,828 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>ThinkpadT61pをWindowsXPとWindows7デュアルブートにする - Nukino's memorandum</title>
+  <meta name="author" content="nukino">
+
+  
+  <meta name="description" content="以前から作業用に使用しているThinkpad T61p+Windows XPの調子が悪い＆容量が足りなくなってきたため、新し
+いHDD(HN-M101MBB Samsung 1TB)を購入し、また「もうそろそろWindows 7にしないとなー」と思ってたので、 &hellip;">
+  <meta name="keywords" content="Windows XP, Windows 7,デュアルブート">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://nukino.github.com/blog/2012/01/24/ThinkpadT61pWindowsXP">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Nukino's memorandum" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27974112-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Nukino's memorandum</a></h1>
+  
+    <h2>とあるソフト屋の覚え書き</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:nukino.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">ThinkpadT61pをWindowsXPとWindows7デュアルブートにする</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-24T17:14:00+09:00" pubdate data-updated="true">2012年01月24日(Tue)</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>以前から作業用に使用しているThinkpad T61p+Windows XPの調子が悪い＆容量が足りなくなってきたため、新し
+いHDD(HN-M101MBB Samsung 1TB)を購入し、また「もうそろそろWindows 7にしないとなー」と思ってたので、
+OSもついでに新しくしようと計画してみた。</p>
+
+<p>でもWindows XPが必要な場面もまだある筈！ということで、Windows XPとのデュアルブートに挑戦した。
+(以前にもやったことあるんですが)</p>
+
+<p>パーティションの切り方に拘ったせいもあって、インストールはかなり手間取った。</p>
+
+<p>自分への備忘録＆同じようなことを考える誰かのために手順などを残しておく。</p>
+
+<p>PCの製品IDは「6459-EAJ」、BIOSバージョンは1.08。</p>
+
+<!-- more -->
+
+<h2 id="section">構想</h2>
+
+<p>1.ブートマネージャはMBM(Multi Boot Manager)を使用し、Windows 7使用時はWindows XP領域をマスクして見えなくし、
+Windows XP使用時はWindows 7領域をマスクして見えなくする。</p>
+
+<p>2.Windows 7をメインに使用する予定なので、Windows 7を最初の領域にしたい(HDDのアクセススピードが速いた
+め)</p>
+
+<p>3.Windows XPはプリインストールされてるライセンスを使用し、パーティションを後で調整する</p>
+
+<p>4.データ領域はXP/7両方で使用する。またドライブレターはE:\でなければならない
+(ツールなどの設定がそれを前提としてあるため)</p>
+
+<p>5.MBMのグラフィカルメニューを使用したい。</p>
+
+<p>まとめると以下のようなパーティション構成。</p>
+
+<p><img src="/images/2012/01/24/img00.png" alt="img00" width="800" /></p>
+
+<h2 id="section-1">準備</h2>
+
+<h3 id="section1-1">1-1 リカバリーディスクの作成(既に作ってあるなら不要)</h3>
+
+<p>ウチのThinkpad T61pはWindows XPプリインストール版なので、リカバリーディスクを作成する。</p>
+
+<p>スタートメニュー→ThinkVantage→Create Recovery Media</p>
+
+<p>から。そんなメニュー項目ねーよ。という人は多分作成済みなんでしょう。頑張って探して下さい。</p>
+
+<p>手順はそれほど難しくはないが、不安な人は<a href="http://www-06.ibm.com/jp/domino04/pc/support/Sylphd06.nsf/jtechinfo/SYJ0-00FD13E">Lenovo リカバリーメディアを作成する方法</a>
+を参照。</p>
+
+<p>私はDVD-Rメディアのみを使用した(3枚必要)が、最初の始動ディスクはCD-Rにしたほうが容量的に無駄がないよ
+うな気がする。</p>
+
+<h3 id="section1-2">1-2 GParted Live CDを作成する</h3>
+
+<p>パーティション操作ソフトは一番有名(だと私が思ってる)GPartedを使用する。</p>
+
+<p>ダウンロードは
+<a href="http://gparted.sourceforge.net/download.php">http://gparted.sourceforge.net/download.php</a>
+から。</p>
+
+<p>イメージファイルの書き込みは別PCからDeepBurnerを使用した。T61pでやる場合は「Multimedia Center for
+Think Offerings」を使用して、コピー→ディスクをイメージに書き込む で出来ると思う(やったことないけど)</p>
+
+<p>不安な人は作成したCD-Rを入れて再起動した際にGPartedが起動するかどうかを確認する。</p>
+
+<p>起動しない場合はまずBIOSを起動(起動画面でF1)しStartup→Bootで、内蔵CD/DVDが内蔵HDDより起動の優先順位
+が高いかどうかを確認する。</p>
+
+<h3 id="section1-3">1-3 Paragon Backup &amp; RecoveryのインストールとリカバリCD作成</h3>
+
+<p>後でパーティションを操作したり、Windows 7をインストールしたりすると、Windows XPが起動しなくなる場合
+があるため、それを復旧できるバックアップ＆リカバリソフトをインストールする。</p>
+
+<p>色々調べたが、パーティション構成が異なってると上手く動かないソフトが多いが、「Paragon Backup
+&amp; Recovery」はパーティション構成が異なっていても思ったように復旧してくれる。しかも個人の非商用利用の
+場合は無料(ユーザー登録でメアド入力しないといけないけど)</p>
+
+<p>ダウンロードは<a href="http://www.forest.impress.co.jp/lib/sys/file/syncbackup/paragonbakup.html">こちら</a>
+から</p>
+
+<p>インストールできたら起動して「Tools→Burn Recovery Media」でリカバリー用CD-Rを作成しておく</p>
+
+<h3 id="section1-4">1-4 MBM起動ディスクを作成</h3>
+
+<p>USBメモリを1個使って、MBM起動ディスクを作成。後で気付いたが
+<a href="http://elm-chan.org/fsw/mbm/mbm.html">http://elm-chan.org/fsw/mbm/mbm.html</a>に
+<a href="http://elm-chan.org/fsw/mbm/mbm039.iso.gz">ブータブルCDイメージ</a>があるので、これをCDに焼いた方が簡
+単かもしれない。</p>
+
+<ol>
+  <li>
+    <p><a href="http://memorva.jp/internet/pc/dos_usb.php">USB起動ディスクの作り方</a><br />
+の「Free DOS」を使う方法で、USBメモリを作成。</p>
+  </li>
+  <li>
+    <p><a href="http://www.vector.co.jp/soft/dos/util/se035596.html">MBM 0.39</a>をダウンロード＆解凍し、
+<code>BIN</code>フォルダの中身を作成したUSBメモリにコピー(<code>MBM.144</code>は不要だと思うけど)</p>
+  </li>
+</ol>
+
+<p>FDを使う場合はMBM039.zipの<code>BIN\MBM.144</code>を<a href="http://sourceforge.jp/projects/freshmeat_rawwriteforwindows/">rawwrite</a>を使って書き込めば良いと思う</p>
+
+<h3 id="section-2">1-5 環境移行用</h3>
+
+<p>環境移行用のデータをUSBメモリにぶち込む。私の場合は</p>
+
+<ol>
+  <li>FireFox(FEBE使用)</li>
+  <li>Visual Stdio(設定のエクスポート)</li>
+  <li>Puttyのレジストリ設定(<a href="http://blog.cles.jp/item/2300">Puttyの設定のエクスポートする</a>参照)</li>
+  <li>Access Connectionプロファイル(プロファイルタブの「エクスポート」ボタン)</li>
+</ol>
+
+<p>ぐらい。他のデータは<a href="http://groovy.ne.jp/products/hddset/ud_500sa.html">Groovy UD-500SA</a>を使って直接
+旧HDD→新HDDにコピーする。</p>
+
+<p>後で気付いたが、「ThinkVantage→System Update」すると「System Migration Assistant」というツールが入
+るので、これを使うとOSの設定と有名どころのアプリの設定を移行してくれるみたい(対応アプリはヘルプを参
+照)。私はこの手のソフトはあまり好きではない(自分でやった方が安心)が、楽したい人には便利かも。</p>
+
+<p>最後にWindows7用の</p>
+
+<ul>
+  <li>
+    <p><a href="http://www-06.ibm.com/jp/domino05/pc/download/download.nsf/jtechinfo/MIGR-73695">System Update</a></p>
+  </li>
+  <li>
+    <p><a href="http://www-06.ibm.com/jp/domino05/pc/download/download.nsf/jtechinfo/MIGR-73682">Access Connections</a></p>
+  </li>
+</ul>
+
+<p>をダウンロードしてUSBメモリに入れておく</p>
+
+<h2 id="section-3">実作業</h2>
+
+<h3 id="hdd">2-1 HDDの交換</h3>
+
+<p>HDDの交換はACアダプタとバッテリ外した上で、CD/DVD横のネジ一本外して、フィルムを引き出せばOK。</p>
+
+<p>とこれだけでは何なので参照URLを</p>
+
+<ul>
+  <li><a href="http://diaryonweekend.seesaa.net/article/205316233.html">ThinkPad T61(7658-A14)：ハードディスク交換: 週末日記ぶろぐ</a></li>
+</ul>
+
+<p>公式じゃなきゃやだ！と言う人は下記。</p>
+
+<ul>
+  <li><a href="http://www.google.co.jp/url?sa=t&amp;rct=j&amp;q=thinkpad%20t61p%20hdd%20%E5%8F%96%E3%82%8A%E5%A4%96%E3%81%97&amp;source=web&amp;cd=6&amp;sqi=2&amp;ved=0CEsQFjAF&amp;url=http%3A%2F%2Fwww-06.ibm.com%2Fjp%2Fdomino04%2Fpc%2Fsupport%2FSylphd01.nsf%2Fjtechinfo%2FFILE-PUB200802%2F%24FILE%2F42X3545_03J.pdf&amp;ei=-EIfT7TAAe_3mAXnytCqDg&amp;usg=AFQjCNF1I0R9Dijp-e2e-ATGTMD5ZNyQLA&amp;cad=rja">ThinkPad T61 および T61p (14.1 インチ) 保守マニュアル</a>
+←pdfです<br />
+の81ページ参照</li>
+</ul>
+
+<h3 id="section-4">2-2 リカバリーディスクで工場出荷状態に戻す</h3>
+
+<ol>
+  <li>
+    <p><a href="#section1-1">1-1 リカバリーディスクの作成</a>で作成した起動ディスクをCD/DVDドライブに入れて起動。</p>
+  </li>
+  <li>
+    <p>めっちゃ遅いがしばらく待ってると画面が表示されるので「システムの復元」をクリック</p>
+  </li>
+  <li>
+    <p>ハードディスクを工場出荷状態に戻す チェックボックスにチェック</p>
+  </li>
+</ol>
+
+<p>4.「ステップ： 以下のオプションから実行したいことを選択してください：」では「どのファイルも保存しな
+い」を選択。</p>
+
+<ol>
+  <li>
+    <p>後は適当に「OK」とか押しておけばいい。一旦再起動して、リカバリー作業が始まるので、
+画面の指示に従ってディスクを入れ替える。</p>
+  </li>
+  <li>
+    <p>リカバリーが終わったら「作業を完了させるには再起動が必要です」みたいなメッセージが表示されるの
+で、「OK」だったか「はい」だったかを押せば再起動する(自動で再起動してくれよ。と思わないではない)</p>
+  </li>
+  <li>
+    <p>Windows XPが起動して、アプリ・ドライバのインストールが自動で始まる。結構時間がかかるので放置。</p>
+  </li>
+  <li>
+    <p>「ようこそ」画面？が表示されてたら画面の指示に従ってユーザー名とかパスワードとか入れる。</p>
+  </li>
+  <li>
+    <p>Windowsが起動したら、あとは画面の指示に従って指紋登録とかする。</p>
+  </li>
+</ol>
+
+<h3 id="section-5">2-3 システムを最新の状態にする</h3>
+
+<p>この手順をとばして<a href="#section2-4">2-4 システムのバックアップを取る</a>に進んでも良い。</p>
+
+<p>リカバリーディスクと同じ内容のバックアップディスク作るのが何か勿体ないような気がしたので、初期設定を
+先にしてみた。</p>
+
+<ol>
+  <li>
+    <p>Access Connectionsのプロファイルを復元</p>
+  </li>
+  <li>
+    <p>ウイルス(セキュリティ)対策ソフトをインストール</p>
+  </li>
+  <li>
+    <p>「System Update」を使ってアプリやドライバなどを最新の状態にする</p>
+  </li>
+  <li>
+    <p>Windows Updateを使ってService Pack 3をあて、Windowsの重要な更新もあてる</p>
+  </li>
+</ol>
+
+<h3 id="section2-4">2-4 システムのバックアップを取る</h3>
+
+<p>たぶん「5.」～だけやればOKだと思うが、試行錯誤してうまくいった手順を書いておく</p>
+
+<ol>
+  <li>
+    <p>「Rescue and Recovery」を起動し、「拡張Rescue and Recovery」をクリック。「ハードディスクのバック
+アップ」で「バックアップをCD/DVDに作成」を選択する。(この作業は厳密に言えば不要。「Paragon Backup
+&amp; Recovery」でバックアップ＆リカバリー失敗すると、リカバリーディスクからやり直しになるのがダメー
+ジでかい) 私は起動ディスクも作ってしまったが、リカバリーディスクの起動ディスクと同じっぽいので不
+要だとおもう。</p>
+  </li>
+  <li>
+    <p>念のためデフラグ。プリインストールされてる「Diskeeper Lite」は容量がでかすぎて動かないと言われる
+のでアンインストールする。</p>
+  </li>
+  <li>
+    <p><a href="#section1-2">1-2 GParted Live CDを作成する</a>で作成した「GParted Live CD」をCD/DVD
+ドライブに入れて再起動。Windows XP領域のサイズを小さくする(私は120GB位にしてみた)。Align toは
+「Cylinder」にしておいた。</p>
+  </li>
+  <li>
+    <p>Windows XPが起動するかどうか確認。起動しない場合「1.」で作ったバックアップディスクを使ってレスト
+ア</p>
+  </li>
+  <li>
+    <p><a href="#section1-3">1-3 Paragon Backup &amp; RecoveryのインストールとリカバリCD作成</a>で作ったリカバリーメ
+ディアをCD/DVDに入れて再起動。この時BIOSに入って「Config→Serial ATA」の設定を”Compatible”に変
+更(こうしておかないとバックアップ作業の最初の方で応答がなくなるような気がする)</p>
+  </li>
+  <li>
+    <p>「Paragon Backup &amp; Recovery」が起動したら、Windows XP領域をバックアップする(Backuo Wizard使うと便
+利)。この時MBRをバックアップ対象に入れないようにする</p>
+  </li>
+  <li>
+    <p>再起動してBIOSのSerial ATAの設定を元に戻しておく</p>
+  </li>
+</ol>
+
+<hr />
+
+<p>「Paragon Backup &amp; Recovery」をWindows上でバックアップしない方がいいと思う。</p>
+
+<p>Windows上でバックアップしたディスクを「Paragon Backup &amp; Recovery」リカバリーメディアを使ってレストア
+しようとしたら動かなかったので(圧縮方式とか変えてバックアップしたからそれが原因かもしれんケド)</p>
+
+<p>なんとなくWindows上でバックアップしたものはWindows上でレストアしないと駄目なような気がするので、後で
+インストールするWindows 7に当該ソフトをインストールして、レストアしたら動くような気がするけど</p>
+
+<h3 id="section-6">2-5 パーティションの編集</h3>
+
+<p>チャレンジャーな人はWindows XP領域を一旦更に小さく(40GBとか)してから移動した後、サイズを増やすと
+処理時間が少なくなる</p>
+
+<ol>
+  <li>
+    <p><a href="#section1-2">1-2 GParted Live CDを作成する</a>で作成した「GParted Live CD」をCD/DVDドライブに入れて
+起動。Keymapは別に”Don’t toutch key map”(だったかな？)でいい。後は「15(Japanese)→0」と入力</p>
+  </li>
+  <li>
+    <p>Windows XP領域を後ろの方(500GB程)に移動する。まだサイズを小さくしていないならサイズも小さくする。
+関係あるかどうか知らないけど「Cylinder」境界に合わせておいた。警告が出るけど無視  </p>
+  </li>
+  <li>
+    <p>Windows 7領域を作成。フォーマットは”ntfs”、Cylinder境界に合わせる。先頭シリンダはMBMメニューで使
+用する予定なので、8MBほど開始位置をずらす。後ろのオフセットも4MB程取っておいた<br />
+<img src="/images/2012/01/24/img01.jpeg" alt="img01" width="400" /></p>
+  </li>
+  <li>
+    <p>データ領域を作成。フォーマットは”ntfs”、Cylinder境界に合わせる。前方、後方の空き領域を適当に入れ
+とく<br />
+<img src="/images/2012/01/24/img03.jpeg" alt="img03" width="400" /></p>
+  </li>
+  <li>
+    <p>結果としてはこんな感じ。別に隙間あけなくても良いのかも知れないが、シリンダが重複してMBMが動かない
+という事態になったら嫌なので(画像は現在の状態。フラグの状態などが違っていても気にしちゃ駄目)。<br />
+<img src="/images/2012/01/24/img04.jpeg" alt="img04" width="500" /></p>
+  </li>
+  <li>
+    <p>「Apply」ボタンを押す。1時間以上かかる。</p>
+  </li>
+</ol>
+
+<h3 id="section2-6">2-6 MBMインストール</h3>
+
+<p><a href="#section1-4">1-4 MBM起動ディスクを作成</a>で作成したMBM起動メディア(USB/CD/FD)を挿入して再起動。</p>
+
+<p>USBメモリの場合はUSBメモリ自体がハードディスクデバイス0として認識されてるので、コマンドラインで</p>
+
+<pre><code>mbm install 1
+</code></pre>
+
+<p>と入力しないといけないと思う(FD/CDの場合は<code>mbm install</code>で良い筈)。不安なら</p>
+
+<pre><code>mbm edit
+</code></pre>
+
+<p>として、デバイスを確認してからインストールすれば良い</p>
+
+<h3 id="windows-7">2-7 Windows 7インストール</h3>
+
+<ol>
+  <li>
+    <p>MBM起動メディアを抜いて、再起動。MBMが起動するかどうかを確認する</p>
+  </li>
+  <li>
+    <p>WindowsXP領域以外をマスク(M/F7)した上で、Windows XPが起動するかどうかを確認してみる。
+起動しなかったとしても、とりあえず放置(Windows 7インストールで起動しなくなる可能性大のため)</p>
+  </li>
+  <li>
+    <p>再起動して、MBMでWindows 7領域以外をマスク。</p>
+  </li>
+  <li>
+    <p>Windows 7のインストールディスクをCD/DVDドライブに入れて再起動</p>
+  </li>
+  <li>
+    <p>普通にインストール。</p>
+  </li>
+</ol>
+
+<h3 id="mbm">2-8 MBM再インストールと設定</h3>
+
+<p>Windows 7を入れるとMBRが上書きされるので、<a href="#section2-6">2-6 MBMインストール</a>の手順でもう一度インス
+トールする。</p>
+
+<p>もうMBRは書き換わらないはずなので、ちゃんと設定する。</p>
+
+<ul>
+  <li>R / F2    Rename Menu Item</li>
+  <li>K / F8    Auto Mask Group</li>
+</ul>
+
+<p>を使ってVerbose表示の際に以下のようになるようにする</p>
+
+<pre><code>    1. [a--1] 500G 07 Windows 7
+    2. [--m2] 120G 17 Windows XP
+    3. [--m-] 694M 1C Rescue &amp; Recovery
+    4. [----] 311G 07 *DATA
+</code></pre>
+
+<p>順序は多少違っていても気にしない。重要なのは[—1]や[—2]のマスクグループ設定。
+こうすることでWindowsXP選択時はWindows7領域がマスクされ、Windows7選択時はWindowsXP領域がマスクされ
+る。</p>
+
+<p>Rescue&amp;Recovery領域は常にマスクしておく。まあ消してもリカバリーディスクの起動ディスクがあれば代用出
+来るので不要とも言う・・・。</p>
+
+<p>データ領域のメニュー項目名を”*“から始めることで、Verbose表示でない時、メニュー一覧に表示しないよう
+にできる</p>
+
+<p>あとはSet Timer(T/F3)を使ってタイムアウト時間を設定しておくと便利。
+(初期設定だと前選択したものが選択される。デフォルトのメニュー項目設定したい場合は[Space])</p>
+
+<h3 id="windows-xp">2-9 Windows XPのリカバリ</h3>
+
+<p>私が試した中ではWindows 7をインストールするとWindows XPが起動しなくなった。</p>
+
+<p>ブートレコードとかを編集すれば直るのかも知れないが、やり方をよく知らないので、
+<a href="#section2-4">2-4 システムのバックアップを取る</a>で作成した「Paragon Backup &amp; Recovery」のWindows
+XP領域バックアップディスクを使用してレストアする。</p>
+
+<ol>
+  <li>
+    <p><a href="#section1-3">1-3 Paragon Backup &amp; RecoveryのインストールとリカバリCD作成</a>で作ったリカバリーメ
+ディアをCD/DVDに入れて再起動。BIOSの「Serial ATA」の設定は不要だと思う</p>
+  </li>
+  <li>
+    <p>「Restore Wizard」を使って<a href="#section2-4">2-4 システムのバックアップを取る</a>で作成したWindows領域
+バックアップディスクを入れてレストアする。30分くらいでレストアできた(ような気がする)</p>
+  </li>
+  <li>
+    <p>BCD（Boot Configuration Data: ブート構成データ）まで変更してくれるので、MBMでWindows 7を選択した
+らもう一回OS選択画面が出て鬱陶しい。BCD上のXP領域を消すのはちょっと怖かったので、Windows 7のコマ
+ンドライン(管理者として実行)で<code>bcdedit /timeout 1</code>とタイムアウト時間を短くしてみた</p>
+  </li>
+</ol>
+
+<p>あと全然関係ないけど、UAC(ユーザーアクセス制御)がうざいので、「通知なし」にしておいた。
+最初「管理者として実行」とか知らなくて、<code>bcdedit</code>が動かなくて少し悩んだ。</p>
+
+<p>なんかWindowsて版を重ねるごとにうざくなるな。まあ一般ユーザに合わせてるんだろうけど。</p>
+
+<h3 id="windows-7-1">2-10 Windows 7の不明なデバイス</h3>
+
+<p>これでWindows XPとWindows 7デュアルブート環境構築完了したので、後は適宜必要なアプリをインストールす
+ればいい。</p>
+
+<p>但しWindows 7で「System Update」や「Windows Update」をやっても不明なデバイスが3個ほど出来るので、そ
+れの消し方を書いておく。</p>
+
+<p>1つは「Ricoh マルチ・カード・リーダー ドライバー」。デバイスマネージャでプロパティ→詳細タブを表示
+し、プロパティを「ハードウェアID」とした際に<code>VEN_1180</code>と表示されるものが2つ。</p>
+
+<p>これは<a href="http://www.sevenforums.com/drivers/64309-base-system-device.html">http://www.sevenforums.com/drivers/64309-base-system-device.html</a>に貼ってある<a href="http://www.sevenforums.com/attachments/drivers/54724d1266402003-base-system-device-sp35588.zip">sp35588.zip</a>をダ
+ウンロードし、解凍する。</p>
+
+<p>デバイスマネージャのドライバの更新で解凍したファイルの<code>x86</code>(32bit版の場合)または<code>x64</code>(64bit版の場合)
+を指定すれば、ドライバがインストールされた。</p>
+
+<p><a href="http://www.thinkpad-club.net/modules/d3forum/index.php?topic_id=3276">Ricoh マルチ・カード・リーダー ドライバー(Windows 7 64bit) </a>に
+「Ricoh Multi Card Reader Driver for Windows 7 - ThinkPad R400, R500, T400, T500, W500, W700,
+W700ds 」をインストールしたら導入できたという表記があったが、ウチ(Windows 7 Professional 64bit)では
+インストールした上で、デバイスの削除＆ハードウェア変更のスキャンとかしてみたが、入らなかった。</p>
+
+<p>あと１つ残ってるのは上のページによると、ワイヤレスUSBドライバらしい。そもそも使ったこともないので、
+BIOS上で無効化した。(<a href="http://www-06.ibm.com/jp/domino04/pc/support/Sylphd03.nsf/jtechinfo/SYJ0-0026A8D">ソフトウェアとデバイスドライバーのダウンロード</a>のワイヤレスUSBドラ
+イバを入れたら直るのかも)</p>
+
+<p>あと スリープから復帰した際にSmart Mediaが検出される。フォーマットとかしようとしても失敗する(そりゃ
+そうだわな)。またSystem Updateで「Smart Card Reader for Windows 7 64bit」が検出されるが、インストール失
+敗するのも怪しい。</p>
+
+<p>色々いじくってみたが、うまくいかなかったので放置する(^^ゞ</p>
+
+<h3 id="section-7">もっと簡単にデュアルブートするには</h3>
+
+<ul>
+  <li>
+    <p>Windows XPを新規インストールする(別途ライセンスがある場合)</p>
+  </li>
+  <li>
+    <p>Windows XP領域を移動させない(サイズ変更のみ行う)</p>
+  </li>
+</ul>
+
+<p>のどちらかをすれば、こんなに面倒ではないと思う。</p>
+
+<p>但し、Thinkpad T61pでWindows XPを新規インストールのはそれはそれで嵌まる可能性大。<a href="http://www-06.ibm.com/jp/domino04/pc/support/Sylphd03.nsf/jtechinfo/SYJ0-004AC52">Lenovo
+サポートページ</a>
+参照して、頑張って下さい。</p>
+
+<h2 id="mbm-1">MBMグラフィカルメニュー(拡張メニュー)作成</h2>
+
+<p><a href="http://elm-chan.org/fsw/mbm/mbm.html">MBM本家</a>のメニュー作成支援ツールをダウンロードしてもいいが、
+DOSなので、<a href="http://www.vector.co.jp/soft/win95/util/se323199.html">MBM Maker</a>を使用した方が簡単。</p>
+
+<p>指定できるビットマップサイズはVGA(640x480)、SVGA(800x600)、XGA(1024x768)の3種類。色深度は8ビット(256
+色)または24ビット(フルカラー)ビットマップ。</p>
+
+<p>フルカラービットマップとかを指定しても、メニュー作成時にサイズ制限に引っかかる場合がある(圧縮後のサイ
+ズが614400バイトを超えるとNG)。万全を期すならSVGAの256色ビットマップにリサイズ＆減色すればいい。
+ベタ絵(アニメ絵)ならXGA&amp;256色ならサイズ制限に引っかかることはないと思う。</p>
+
+<p>リサイズ＆減色は私は以前ダウンロードしてあったyukariを使用した(フリーの減色ツールとして評価の高
+いPadieの後継。リサイズのアルゴリズムも選択可能)が、今はダウンロードできないみたい(ウイルス誤検出
+されるため？)。
+ググればダウンロードできるところはあるが、期間限定ぽいのでここには書かない。
+必要なら各自で探す必要がある。</p>
+
+<p>他のツールとしては「ViX 統合画像ビュアー」、「IrfanView」、「BatchGoo」などかな？
+細かい設定ができないかもしれないので、適当なツールがあればそれを使用すればいい。</p>
+
+<h3 id="section-8">元画像の選び方</h3>
+
+<p>自分のディスプレイのアスペクト比(縦横比)が4:3の場合、元画像のアスペクト比は4:3のものを使用する。</p>
+
+<p>ディスプレイのアスペクト比が4:3以外の時(ワイドスクリーンの時)は小さいサイズを表示しようとした際にど
+う表示されるかに依る。Thinkpad T61pは画面全体に拡大されるので元画像のアスペクト比は8:5に近いものを選
+んだ方がいい(または8:5になるように縦または横に帯を入れてみるとか)。<br />
+まあ元画像のアスペクト比が4:3とかならグラフィカルメニュー時に横伸びした画像になるというだけなので、
+気にならないなら別に構わない</p>
+
+<h3 id="section-9">リサイズ＆減色について</h3>
+
+<p>1024x768(または800x600)にリサイズしたあと、256色に減色する。
+(減色してからリサイズしないように) </p>
+
+<p>この時文字色、タイムバーを使用するならタイムバー色や背景色をパレットに含めるように設定する
+(yukariの場合「強制的に以下の自由色を追加する」で指定可能)。</p>
+
+<p>指定しなかった場合文字色やタイムバーの色がおかしくなる可能性がある
+(パレットに色が見つからなかったとき拡張メニュー作成側でどういう処理をしてるか不明。
+そんなえげつない色にはなってないので一番近い色を選んでる？？)</p>
+
+<h3 id="mbm-maker">MBM Makerの使い方</h3>
+
+<p>64bit版Windowsではメニューファイル作成が動かないみたい(16ビットDOS実行ファイルを動かそうとするので)</p>
+
+<p>Windows XP(32bit)なら動くのを確認した(DLLが見つからないみたいなメッセージが出たけど”無視”としたら動
+いた)。但し、以前別のPCでやったとき動かなかった記憶もあるので、環境に依るのかも</p>
+
+<p>iniファイル作成までは動くので、<a href="#section1-4">1-4 MBM起動ディスクを作成</a>で作ったメディアに<code>mkm?.com</code>
+と<code>mkm?.ini</code>を突っ込んで、再起動し、<code>mkm?.com</code>を実行すればメニューファイルができる。</p>
+
+<p>実際の使い方は大体分かるだろうけど、一応スクリーンショットを貼っとく。</p>
+
+<p><img src="/images/2012/01/24/img05.png" alt="img05" title="設定画面" width="450" /></p>
+
+<p><img src="/images/2012/01/24/img06.png" alt="img06" title="プレビュー画面" width="600" /></p>
+
+<h3 id="hdd-1">グラフィカルメニューをHDDに書き込む</h3>
+
+<p>DOS起動FDを作成し、<code>mbm.com</code>と出来たメニューファイル(.mbm)を入れて、</p>
+
+<pre><code>mbm setmenu
+</code></pre>
+
+<p>として、メニューファイル、書き込むシリンダ番号を指定するのが一番簡単。この時書き込むシリンダ番号を間
+違えると、OSが起動しなくなったりするかもしれないので注意。</p>
+
+<pre><code>mbm edit
+</code></pre>
+
+<p>として、未使用シリンダを確認した上で使用した方がいい。</p>
+
+<p>なお、<a href="#section1-4">1-4 MBM起動ディスクを作成</a>で作ったUSBメディアで起動して、<code>mbm setmenu</code>としてもUSB側に
+グラフィカルメニュー(拡張メニュー)を作成しようとするためうまくいかない。</p>
+
+<p><a href="http://www.sssg.org/sns/naganuma/weblog/89.html">MBMをUSBメモリからインストールする</a></p>
+
+<p>の方法で作った上でMBM.144を<a href="http://www.vector.co.jp/soft/dl/win95/util/se107750.html">Disk Explorer</a>
+で編集し、<code>mbm.com</code>と出来たメニューファイル(.mbm)を突っ込めば動くかもしれない。</p>
+
+<p>CD-R(またはCD-RW)起動の場合は試してないが、なんとなく動きそうな気がする。</p>
+
+<p>もしくは新しくHDD内にパーティション作って、Free DOSを入れた上で必要ファイルを突っ込んでもいい。</p>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">nukino</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-24T17:14:00+09:00" pubdate data-updated="true">2012年01月24日(Tue)</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/windows/'>Windows</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://nukino.github.com/blog/2012/01/24/ThinkpadT61pWindowsXP/" data-via="nukino_j" data-counturl="http://nukino.github.com/blog/2012/01/24/ThinkpadT61pWindowsXP/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/01/16/gist_vim/" title="Previous Post: Gist.vimの導入とヘルパースクリプトの作成">&laquo; Gist.vimの導入とヘルパースクリプトの作成</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+  <p>本職は組み込み系の30代Cプログラマ</p>
+  <p>Windows専用でLinuxとかは基本専門外。いつか使いこなせるようになりたいと夢見てる</p>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/01/24/ThinkpadT61pWindowsXP/">ThinkpadT61pをWindowsXPとWindows7デュアルブートにする</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/16/gist_vim/">Gist.vimの導入とヘルパースクリプトの作成</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/12/Octopress/">Octopress記事作成スクリプトを修正してみた</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/10/helpgrep/">vimのhelpgrepで日本語が使えない場合</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/08/vimSSH/">vimからSSH/SCP接続してみる</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Github Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/nukino">@nukino</a> on Github
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'nukino',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("nukino_j", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/nukino_j" class="twitter-follow-button" data-show-count="false">Follow @nukino_j</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - nukino -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'nukinosmemorandum';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://nukino.github.com/blog/2012/01/24/ThinkpadT61pWindowsXP/';
+        var disqus_url = 'http://nukino.github.com/blog/2012/01/24/ThinkpadT61pWindowsXP/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

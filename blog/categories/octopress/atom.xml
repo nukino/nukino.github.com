@@ -4,7 +4,7 @@
   <title><![CDATA[Category: octopress | Nukino's memorandum]]></title>
   <link href="http://nukino.github.com/blog/categories/octopress/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2012-01-16T15:43:24+09:00</updated>
+  <updated>2012-01-26T01:39:12+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -213,7 +213,7 @@ gistの制限でそうしてあるのか単純にGist.vimのバグかまでは�
 <h2 id="gistvim-3">Gist.vimヘルパースクリプト</h2>
 
 <p>毎回-sオプション付けて説明指定するのは面倒なので、それを自動的に付けてしまおう。
-というスクリプトです。</p>
+というスクリプトを書いてみた。</p>
 
 <p>導入が若干面倒なので、プラグインにしてしまった方が良いような気もする。<br />
 まあ要望があれば考えると言うことで・・・。</p>
