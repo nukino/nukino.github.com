@@ -9,8 +9,7 @@
   <meta name="author" content="nukino">
 
   
-  <meta name="description" content="以前から作業用に使用しているThinkpad T61p+Windows XPの調子が悪い＆容量が足りなくなってきたため、新し
-いHDD(HN-M101MBB Samsung 1TB)を購入し、また「もうそろそろWindows 7にしないとなー」と思ってたので、 &hellip;">
+  <meta name="description" content="cygwin+minttyで C:\cygwin\bin\mintty.exe -i /Cygwin-Terminal.ico - とした場合と C:\cygwin\bin\mintty.exe -i /Cygwin-Terminal.ico とした場合(“-“(ハイフン)の有無)で挙動が違う( &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +76,106 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/02/02/cygwinmintty/">Cygwin(mintty)のシェル設定ファイル読み込み順</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-02T18:53:00+09:00" pubdate data-updated="true">2012年02月 2日(Thu)</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>cygwin+minttyで</p>
+
+<pre><code>C:\cygwin\bin\mintty.exe -i /Cygwin-Terminal.ico -
+</code></pre>
+
+<p>とした場合と</p>
+
+<pre><code>C:\cygwin\bin\mintty.exe -i /Cygwin-Terminal.ico
+</code></pre>
+
+<p>とした場合(“-“(ハイフン)の有無)で挙動が違う(読み込まれる設定ファイルが違う＆起動速度が違う)ので調べてみた。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/02/02/cygwinmintty/">続きを読む &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/02/02/Cygwin/">Cygwinを導入してみた</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-02T14:33:00+09:00" pubdate data-updated="true">2012年02月 2日(Thu)</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>OSを再インストールしたので、以前使っていたlinux系のツール群(rubyやcurl、gitなど)をどうしようかな？
+と考えた結果、Cygwinで統合するのはどうかと考えた。</p>
+
+<p>Cygwin自体は以前何度かインストールしたことがあるが、設定が煩雑で結局思い通りにならなかった(己のス
+キルが足りてなかっただけとも言う･･･)ので毛嫌いしていたが、最近のはUTF-8にも対応していて結構簡単
+そうという記述を<a href="http://d.hatena.ne.jp/takuya_1st/20111121/1321865738">ここ</a>で見かけたので、
+丁度いい機会なので挑戦してみた。</p>
+
+<p>導入したOSはWindows 7 64bit(SP1)。Cygwinのバージョン(<code>cygwin1.dll</code>のバージョン)は1.7.9</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/02/02/Cygwin/">続きを読む &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -451,6 +550,14 @@ OSもついでに新しくしようと計画してみた。</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2012/02/02/cygwinmintty/">cygwin(mintty)のシェル設定ファイル読み込み順</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/02/Cygwin/">Cygwinを導入してみた</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/01/24/ThinkpadT61pWindowsXP/">ThinkpadT61pをWindowsXPとWindows7デュアルブートにする</a>
       </li>
     
@@ -460,14 +567,6 @@ OSもついでに新しくしようと計画してみた。</p>
     
       <li class="post">
         <a href="/blog/2012/01/12/Octopress/">Octopress記事作成スクリプトを修正してみた</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/01/10/helpgrep/">vimのhelpgrepで日本語が使えない場合</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/01/08/vimSSH/">vimからSSH/SCP接続してみる</a>
       </li>
     
   </ul>

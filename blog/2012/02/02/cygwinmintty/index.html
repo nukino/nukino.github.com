@@ -1,0 +1,550 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>cygwin(mintty)のシェル設定ファイル読み込み順 - Nukino's memorandum</title>
+  <meta name="author" content="nukino">
+
+  
+  <meta name="description" content="cygwin+minttyで C:\cygwin\bin\mintty.exe -i /Cygwin-Terminal.ico - とした場合と C:\cygwin\bin\mintty.exe -i /Cygwin-Terminal.ico とした場合(“-“(ハイフン)の有無)で挙動が違う( &hellip;">
+  <meta name="keywords" content="cygwin, bash, mintty, completion">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://nukino.github.com/blog/2012/02/02/cygwinmintty">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Nukino's memorandum" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27974112-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Nukino's memorandum</a></h1>
+  
+    <h2>とあるソフト屋の覚え書き</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:nukino.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Cygwin(mintty)のシェル設定ファイル読み込み順</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-02T18:53:00+09:00" pubdate data-updated="true">2012年02月 2日(Thu)</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>cygwin+minttyで</p>
+
+<pre><code>C:\cygwin\bin\mintty.exe -i /Cygwin-Terminal.ico -
+</code></pre>
+
+<p>とした場合と</p>
+
+<pre><code>C:\cygwin\bin\mintty.exe -i /Cygwin-Terminal.ico
+</code></pre>
+
+<p>とした場合(“-“(ハイフン)の有無)で挙動が違う(読み込まれる設定ファイルが違う＆起動速度が違う)ので調べてみた。</p>
+
+<!-- more -->
+
+<h2 id="section">設定ファイルの読み込み順</h2>
+
+<p>挙動の違いは<code>man mintty</code>とすれば記述がある。</p>
+
+<blockquote>
+  <p>SYNOPSIS<br />
+      mintty [OPTION]… [ - | PROGRAM [ARG]… ]<br />
+～～～中略～～～<br />
+INVOCATION<br />
+      If a program name is supplied on the command line, this is executed
+      with any additional arguments given.  Otherwise, mintty looks for a
+      shell to execute in the SHELL environment variable.  If that is not
+      set, it reads the user’s default shell setting from /etc/passwd.  As a
+      last resort, it falls back to /bin/sh.  If a single dash is specified
+      instead of a program name, the shell is invoked as a login shell.</p>
+</blockquote>
+
+<h3 id="section-1">引数に”-“(ハイフン)を指定した場合→ログインシェルを起動する。</h3>
+
+<p>つまり、</p>
+
+<pre><code>/etc/profile
+~/.bash_profile
+</code></pre>
+
+<p>の順で読み込まれる(ログインシェルをbashにしてる場合？？)</p>
+
+<p>但しデフォルトで生成される設定ファイルは<br />
+<code>/etc/profile</code>内で<code>/etc/bash.bashrc</code><br />
+<code>~/.bash_profile</code>内で<code>~/.bash_profile</code><br />
+が読み込まれる(source)ので、実際には</p>
+
+<pre><code>/etc/profile
+/etc/bash.bashrc
+~/.bash_profile
+~/.bashrc
+</code></pre>
+
+<p>の順で読み込まれるということになる。</p>
+
+<p>細かいことを言うと、ホームディレクトリ内の設定ファイルの検索順は
+<a href="http://www.atmarkit.co.jp/flinux/rensai/theory09/theory09b.html">http://www.atmarkit.co.jp/flinux/rensai/theory09/theory09b.html</a>によると</p>
+
+<p><code>~/.bash_profile</code>→<code>~/.bash_login</code>→<code>~/.profile</code><br />
+(ファイルが見つかった時点でそのファイルが読み込まれる)</p>
+
+<p>となっているらしい。cygwinでは最初に<code>~/.bash_profile</code>が生成されるので(<code>~/.profile</code>も生成されるけ
+ど)、上記のような読み込み順となる。</p>
+
+<h3 id="shell">引数に何も指定しない場合→SHELL環境変数が参照される</h3>
+
+<p>Windows側のSHELL環境変数(システム優先)に<code>/bin/bash</code>と指定してある場合、bashが起動するので</p>
+
+<pre><code>/etc/bash.bashrc
+~/.bashrc
+</code></pre>
+
+<p>の順で読み込まれる。</p>
+
+<p>Windows側のSHELL環境変数を指定しなかった場合は<code>/etc/passwd</code>を参照し、それでもシェルが不明なら
+<code>/bin/sh</code>が起動する(Cygwinのログインシェル決定ルーチンもこんな感じぽい)</p>
+
+<h2 id="section-2">ログインシェル起動したときに遅い</h2>
+
+<p>私の環境では引数に”-“を指定した場合、起動が若干遅い。</p>
+
+<p>各読込ファイルの先頭と<code>~/.bashrc</code>のみ末尾にも<code>date %T.%N</code>を追加して、調べてみると</p>
+
+<table class="simpletbl">
+  <tbody>
+    <tr>
+      <td>引数に”-“を指定した場合</td>
+      <td>3214ms</td>
+    </tr>
+    <tr>
+      <td>引数に何も指定しない場合</td>
+      <td>390ms</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>となってる(コマンド出力のオーバーヘッドがあるため、実際はもう少し速いと思う)<br />
+なお環境はWindows7 SP1+Thinkpad T61p[Core 2 duo T9500]。</p>
+
+<h3 id="section-3">何故遅いか</h3>
+
+<p>何故遅いのか調べてみると<code>/etc/profile</code>のシェルスクリプト読込(source)処理が以下のようになってるみたい</p>
+
+<pre><code>/etc/profile
+    /etc/profile.d/*.sh読込･･･
+        /etc/profile.d/bash_completion.sh
+            /etc/bash_completion
+                /etc/bash_completion.d/*読込(*.bak、*.swpなどは除外される)
+        /etc/profile.d/lang.sh
+        /etc/profile.d/openssl.sh
+</code></pre>
+
+<p>このうち<code>/etc/profile.d/bash_completion.sh</code>が遅そう(^1)なので、cygwin上で</p>
+
+<pre><code>cd /etc/profile.d
+mv bash_completion.sh bash_completion.sh.del
+</code></pre>
+
+<p>としてみたらかなり速くなった(1062ms)。</p>
+
+<p>ただしこの場合<code>bash_completion</code>は使えない。</p>
+
+<h3 id="bashcompletion"><code>bash_completion</code>を高速化(必要コマンドのみ使用)</h3>
+
+<p><code>bash_completion</code>はあると結構便利な場合もある(<code>man</code>コマンドの時など)ので、高速化できないかを考えてみ
+る。</p>
+
+<p><code>/etc/bash_completion.d</code>の中を見てみると、インストールされてないコマンド(<code>dpkg</code>など)の補完ファイル
+がある(<code>/etc/bash_completion</code>ではコマンドが実行可能かどうかは調べてないっぽい。まあ実行可能かどうか
+調べるのと、読み込むのとどちらが速いかは微妙なところではあるけど。)ので、</p>
+
+<pre><code>mv /etc/bash_completion.d /etc/bash_completion.d.bak
+mkdir /etc/bash_completion.d
+</code></pre>
+
+<p>として、必要な補完ファイルのみを<code>/etc/bash_completion.d</code>にコピーする(この場合、
+<code>/etc/profile.d/bash_completion.sh</code>の名前は変えない)。</p>
+
+<p>/etcディレクトリをいじくりまわしたくない場合は、<code>~/cygwin/bash_completion.d</code>というディレクトリ
+を作って、以下を<code>~/.bashrc</code>に書く(この場合、<code>/etc/profile.d/bash_completion.sh</code>の拡張子を適当に変え
+ておく。<code>/etc/bash_completion.d</code>の名前は変えなくていい)</p>
+
+<div><script src="https://gist.github.com/1708241.js?file="></script>
+<noscript><pre><code>if [[ -z &quot;$BASH_COMPLETION_DIR&quot; &amp;&amp; -f /etc/bash_completion ]]; then
+    USER_COMP_DIR=~/cygwin/bash_completion.d
+    BASH_COMPLETION_DIR=$USER_COMP_DIR
+    BASH_COMPLETION_COMPAT_DIR=$USER_COMP_DIR
+    unset USER_COMP_DIR
+    . /etc/bash_completion
+fi
+</code></pre></noscript></div>
+
+<p><code>bash-biiltins</code>,<code>gcc</code>,<code>gdb</code>,<code>make</code>,<code>man</code>,<code>sh</code>コマンド補完ファイルのみをコピーしたところ最初に比べ
+ると、かなり速くなった(1810ms)。</p>
+
+<p>ただ、<code>~/.bashrc</code>を書き換える方法だと引数に何も指定しない場合でも<code>bash_completion</code>が有効になってしま
+うので、それが嫌な場合は<code>~/.bash_profile</code>に移動しとく。</p>
+
+<h3 id="bashcompletion-1"><code>bash_completion</code>を更に高速化(コマンド以外の補完機能オフ)</h3>
+
+<p><code>/etc/bash_completion</code>の読込自体が結構遅い。そこで、<code>bash_completion</code>のコ
+マンド補完のみ使用するため、<code>/etc/bash_completion</code>の192行目～1201行目(<code>bash_completion</code> ver 1.3の場
+合。<code># start of section containing completion functions called by other functions</code>～
+<code># start of section containing completion functions for external programs</code>の直前まで)をコピーし、
+<code>~/cygwin/bash_completion</code>というファイルを作って貼り付けておく</p>
+
+<p>んで、<code>~/.bashrc</code>に以下を追加する。</p>
+
+<div><script src="https://gist.github.com/1708232.js?file="></script>
+<noscript><pre><code>[ -n &quot;$USER_COMP_DIR&quot; ] || USER_COMP_DIR=~/cygwin/bash_completion.d
+[ -n &quot;$USER_COMP_FILE&quot; ] || USER_COMP_FILE=~/cygwin/bash_completion
+if [[ -d $USER_COMP_DIR &amp;&amp; -r $USER_COMP_DIR &amp;&amp; -x $USER_COMP_DIR &amp;&amp; \
+    -f $USER_COMP_FILE &amp;&amp; -r $USER_COMP_FILE ]]; then
+
+    # /etc/bash_completionより
+    UNAME=$( uname -s )
+    # strip OS type and version under Cygwin (e.g. CYGWIN_NT-5.1 =&gt; Cygwin)
+    UNAME=${UNAME/CYGWIN_*/Cygwin}
+
+    case ${UNAME} in
+        Linux|GNU|GNU/*) USERLAND=GNU ;;
+        *) USERLAND=${UNAME} ;;
+    esac
+
+    # Turn on extended globbing and programmable completion
+    shopt -s extglob progcomp
+    #----
+
+    # 関数群を読み込む
+    . &quot;$USER_COMP_FILE&quot;
+    # USER_COMP_DIRの中身を読み込む
+    for i in $(LC_ALL=C command ls &quot;$USER_COMP_DIR&quot;); do
+        i=$USER_COMP_DIR/$i
+        [[ -f $i &amp;&amp; -r $i ]] &amp;&amp; . &quot;$i&quot;
+    done
+    unset i
+
+    unset -f have
+    unset UNAME USERLAND have
+fi
+unset USER_COMP_DIR USER_COMP_FILE
+</code></pre></noscript></div>
+
+<p>先ほどと同様に<code>bash-biiltins</code>,<code>gcc</code>,<code>gdb</code>,<code>make</code>,<code>man</code>,<code>sh</code>コマンド補完ファイルのみを
+<code>~/cygwin/bash_completion.d</code>にコピーしたところ、更に速くなった(1320ms)。</p>
+
+<p>manコマンドの補完が効くのは確認したが、他は確認してない。他の記述も引っ張ってこないときちんと動かな
+かったりするかも。</p>
+
+<p>この方法だと、<code>bash_completion</code>のフル機能が使いたい場合は<code>source /etc/bash_completion</code>とコマンド
+を打てばいいと思う(またはエイリアスを設定して、それを打つとか)</p>
+
+<h3 id="section-4">まとめ</h3>
+
+<p>引数に”-“を指定した場合、実行時間は以下のようになる。機能を限定していくほど高速化する(当たり前だけ
+ど)</p>
+
+<table class="normaltbl">
+  <thead>
+    <tr>
+      <th style="text-align: left">項目</th>
+      <th style="text-align: left">時間</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code>bash_completion</code>フル使用(初期状態)</td>
+      <td style="text-align: left">3214ms</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">必要コマンドのみ使用</td>
+      <td style="text-align: left">1810ms</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">コマンド以外の補完機能オフ</td>
+      <td style="text-align: left">1320ms</td>
+    </tr>
+  </tbody>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code>bash_completoin</code>オフ</td>
+      <td style="text-align: left">1062ms</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><code>bash_completion</code>が遅いのは、補完機能をスクリプトで実現しようとしているためだと思う。
+他のシェルに切り替えるとこんな涙ぐましいコトしなくてもスマートで高速なのかも知れない。</p>
+
+<hr />
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">nukino</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-02T18:53:00+09:00" pubdate data-updated="true">2012年02月 2日(Thu)</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/cygwin/'>cygwin</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://nukino.github.com/blog/2012/02/02/cygwinmintty/" data-via="nukino_j" data-counturl="http://nukino.github.com/blog/2012/02/02/cygwinmintty/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/02/02/Cygwin/" title="Previous Post: Cygwinを導入してみた">&laquo; Cygwinを導入してみた</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+  <p>本職は組み込み系の30代Cプログラマ</p>
+  <p>Windows専用でLinuxとかは基本専門外。いつか使いこなせるようになりたいと夢見てる</p>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/02/02/cygwinmintty/">cygwin(mintty)のシェル設定ファイル読み込み順</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/02/Cygwin/">Cygwinを導入してみた</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/24/ThinkpadT61pWindowsXP/">ThinkpadT61pをWindowsXPとWindows7デュアルブートにする</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/16/gist_vim/">Gist.vimの導入とヘルパースクリプトの作成</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/12/Octopress/">Octopress記事作成スクリプトを修正してみた</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Github Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/nukino">@nukino</a> on Github
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'nukino',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("nukino_j", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/nukino_j" class="twitter-follow-button" data-show-count="false">Follow @nukino_j</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - nukino -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'nukinosmemorandum';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://nukino.github.com/blog/2012/02/02/cygwinmintty/';
+        var disqus_url = 'http://nukino.github.com/blog/2012/02/02/cygwinmintty/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

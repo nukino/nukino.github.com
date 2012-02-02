@@ -1,0 +1,706 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Cygwinを導入してみた - Nukino's memorandum</title>
+  <meta name="author" content="nukino">
+
+  
+  <meta name="description" content="OSを再インストールしたので、以前使っていたlinux系のツール群(rubyやcurl、gitなど)をどうしようかな？
+と考えた結果、Cygwinで統合するのはどうかと考えた。 Cygwin自体は以前何度かインストールしたことがあるが、設定が煩雑で結局思い通りにならなかった(己のス &hellip;">
+  <meta name="keywords" content="cygwin, mintty">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://nukino.github.com/blog/2012/02/02/Cygwin">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Nukino's memorandum" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27974112-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Nukino's memorandum</a></h1>
+  
+    <h2>とあるソフト屋の覚え書き</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:nukino.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Cygwinを導入してみた</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-02T14:33:00+09:00" pubdate data-updated="true">2012年02月 2日(Thu)</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>OSを再インストールしたので、以前使っていたlinux系のツール群(rubyやcurl、gitなど)をどうしようかな？
+と考えた結果、Cygwinで統合するのはどうかと考えた。</p>
+
+<p>Cygwin自体は以前何度かインストールしたことがあるが、設定が煩雑で結局思い通りにならなかった(己のス
+キルが足りてなかっただけとも言う･･･)ので毛嫌いしていたが、最近のはUTF-8にも対応していて結構簡単
+そうという記述を<a href="http://d.hatena.ne.jp/takuya_1st/20111121/1321865738">ここ</a>で見かけたので、
+丁度いい機会なので挑戦してみた。</p>
+
+<p>導入したOSはWindows 7 64bit(SP1)。Cygwinのバージョン(<code>cygwin1.dll</code>のバージョン)は1.7.9</p>
+
+<!-- more -->
+
+<h2 id="section">準備</h2>
+
+<p>この手のツール使う際には常識かもしれないが、ホスト名やユーザ名に日本語は含んでいない方がいい。<br />
+もし含んでいるなら、変更することを推奨する。</p>
+
+<h3 id="section-1">環境変数の設定</h3>
+
+<p>必要ならば、以下の環境変数を設定しておく。</p>
+
+<div><script src="https://gist.github.com/1710407.js?file="></script>
+<noscript><pre><code>rem CygwinシンボリックリンクをWindowsショートカットにする場合コメントアウト
+rem setx CYGWIN winsymlinks
+rem makeの動作モード
+setx MAKE_MODE unix</code></pre></noscript></div>
+
+<p>なお、Windows Vista以降では<code>setx</code>コマンドでシステムのプロパティにある環境変数を追加、編集、削除でき
+るので、このファイルをダウンロードして実行するだけでおｋ(コマンドプロンプトで打ってもいいけど)。</p>
+
+<p>Windows XPは標準で入ってないが、Windows XP CD/DVDの<code>\Support\SUPTOOLS.MSI</code>をインストールすれば導入で
+きる。コマンドの詳細は<a href="http://www.atmarkit.co.jp/fwin2k/win2ktips/1003setx/setx.html">http://www.atmarkit.co.jp/fwin2k/win2ktips/1003setx/setx.html</a>参照。</p>
+
+<p>このコマンドかなり便利だと思うけど、他のページではあまり触れられてないね。</p>
+
+<p><code>MAKE_MODE</code>環境変数はmakeするときに<code>cmd.exe</code>を使用するか<code>/bin/sh</code>を参照するかを指定する。</p>
+
+<p><code>SH_OPTS</code>環境変数に<code>igncr</code>を指定すると、シェルスクリプトの改行コードがCR+LFでも動く。<code>~/.bashrc</code>など
+に指定した場合、関連付けなどでCygwin外から実行した際には<code>~/.bashrc</code>は読み込まれないので、
+エラーになる。環境変数に指定しておくと、必ず有効になる。<br />
+テキストファイルの改行コードをLFに統一してるような人には勿論不要。</p>
+
+<p><code>CYGWIN</code>環境変数に<code>winsymlinks</code>を指定すると、Cygwinで作成するシンボリックリンクをショートカットとし
+て利用することが可能(Cygwin 1.5系と同様らしい)。</p>
+
+<p>ただし<a href="http://cygwin.com/cygwin-ug-net/using-cygwinenv.html">The CYGWIN environment variable</a>にある
+ようにこれを指定すると速度が遅くなるらしい。個人的にはショートカットではなくWindowsのジャンクション/
+シンボリックリンクを使って欲しいので、設定していない</p>
+
+<p>なお他のページで<code>ntsec</code>や<code>smbntsec</code>などを設定するような記述があるが、Cygwin 1.7系では既に廃止されて
+いるので、旧版(Cygwin 1.5系??)と共存させるなどの目的がないなら設定する必要はない
+(設定しても不都合はなさそうだが。)</p>
+
+<p>また、SHELLやHOME環境変数の設定も特にこだわりがないなら不要。セットアップ時に<code>/etc/passwd</code>が作られ、
+その中でデフォルトのSHELL(/bin/bash)、HOME(/home/ユーザー名)が設定されている為。</p>
+
+<dl>
+  <dt>その他参考ページ</dt>
+  <dd><a href="http://www.oki-osk.jp/esc/cyg/cygwin-23.html">Cygwin 1.7.5</a></dd>
+  <dd><a href="http://news.mynavi.jp/special/2002/cygwin/004.html">Windowsユーザーへ贈るUnixへの架け橋</a></dd>
+</dl>
+
+<h2 id="cygwin">Cygwinのインストール</h2>
+
+<p><a href="http://www.cygwin.com/">Cygwin本家</a>から<code>setup.exe</code>をダウンロードして実行。試したsetup.exeのバージョ
+ンは2.763、cygwin1.dllのバージョンは1.7.9(2011-03-29)。</p>
+
+<p>セットアップ自体は簡単。</p>
+
+<ol>
+  <li>“Install from Internet”を選択</li>
+  <li>Cygwinのインストールディレクトリは<code>C:\Cygwin</code>など</li>
+  <li>Local Package Directoryは<code>C:\Cygwin\package</code>など</li>
+  <li>Download siteは”ftp://ftp.jaist.ac.jp”を選択(近くのサーバーを選択すればいい)</li>
+  <li>インストールするパッケージは必要なら後でインストールすればいいので、適当でいいが、wgetはインストール
+しておくこと(後で<code>apt-cyg</code>を使うときに必要。)。bzip2とgawkも必要だが、恐らくデフォルトでインストール
+する設定になっているはず。</li>
+</ol>
+
+<p>あとは放っておけばいい。昔インストールしたときはISDNだったなー。2～3時間くらいセットアップに時間かかっ
+たような気がするけど、今は光だから10分程度で終わる。</p>
+
+<h2 id="section-2">初期設定</h2>
+
+<h3 id="home">シェル環境設定ファイルとHOME環境変数について</h3>
+
+<p>セットアップが出来たら、Cygwinを起動する。</p>
+
+<p>ホームディレクトリはデフォルトでは<code>/home/Windowsユーザ名</code>(<code>C:\Cygwin\home\Windowsユーザ名</code>)で、ディ
+レクトリがない場合は自動的に作成され、シェル環境設定ファイルが作成される(Cygwin 1.7.9の場合、
+<code>.bash_profile</code>,<code>.bashrc</code>,<code>.inputrc</code>,<code>.profile</code>の4つのファイル)</p>
+
+<p>しかし、既にHOME環境変数を設定していて、既にそのディレクトリが存在する場合、シェル環境設定ファイル
+が作られないという問題がある。</p>
+
+<p>デフォルトのシェル環境設定ファイルは<code>/etc/skell</code>にあるので、これをホームディレクトリにコピーする。
+(Cygwinで以下のコマンドを実行。上書きされると困るかもしれないので’-i’オプション付けてある)</p>
+
+<pre><code>cp -i /etc/skel/.* ~/
+</code></pre>
+
+<p>また発生条件がイマイチ定かではないが、独自のHOME環境変数(<code>e:\user</code>など)を設定しているとCygwin上の
+<code>cd ~</code>が、<code>cd /home/$USER</code>と解釈される場合がある。</p>
+
+<p>そのため<code>~/.bashrc</code>に以下を追加しておく。</p>
+
+<pre><code>export HOME=/cygdrive/e/user
+</code></pre>
+
+<p>これを設定してからはそういう不思議な症状にならなくなったような気がする。</p>
+
+<h3 id="mintty">minttyの設定(言語設定)</h3>
+
+<p>現在(Cygwin 1.7.9)のデフォルトのターミナルエミュレータはminttyといわれるPuttyベースのターミナルであ
+る。特にこだわりがないなら、これを使うことを推奨する。</p>
+
+<p>何はともあれ言語(ロケール)設定を行う。</p>
+
+<p><img src="/images/2012/02/01/img00.png" alt="img00" title="LANG設定" /></p>
+
+<p>上記のように設定して、Cygwin(mintty)を再起動し、<code>echo $LANG</code>とコマンドを打って以下のようになればOK</p>
+
+<p><img src="/images/2012/02/01/img01.png" alt="img01" title="LANG設定確認" /></p>
+
+<p>詳しくは<code>man mintty</code>とすれば記述があるが、ロケールを設定することで、Cygwin上のLANG環境変数を上書きし
+てくれる。恐らくCygwin上のシェルが起動する前に設定してくれると思うので、シェルの挙動なども変更される
+筈(~/.bashrcで設定するのとは違う)。</p>
+
+<p>但しLANG環境変数を設定することによって<code>date</code>コマンドなどの出力形式が変わる。これにより動作しない
+スクリプトなどがあるかもしれない。</p>
+
+<p>より安全に行くなら、mintty上のロケール設定をデフォルトに戻し、コマンドプロンプトで</p>
+
+<pre><code>setx LC_CTYPE ja_JP.UTF-8
+</code></pre>
+
+<p>として、文字列処理のみを日本語対応にするという手もあるが、私はグローバルな環境変数は極力いじりたくな
+いし、メッセージも日本語化されないし、ということでロケールを考慮してないスクリプトなど無視する（ぉぃ。</p>
+
+<p>あと、minttyのフォントや透過設定(Transparency)などを設定すれば、見た目がかっちょよくなる。</p>
+
+<p><img src="/images/2012/02/01/img02.png" alt="img02" title="スクリーンショット" /></p>
+
+<h2 id="bin">ユーザbinディレクトリの作成とパス設定</h2>
+
+<p>ユーザーbinディレクトリを作成してパスを設定しておく。</p>
+
+<p>Cygwinのコマンドラインで</p>
+
+<pre><code>mkdir ~/cygwin/bin
+</code></pre>
+
+<p>として、<code>~/.bashrc</code>に以下を追加</p>
+
+<div><script src="https://gist.github.com/1714785.js?file="></script>
+<noscript><pre><code>if [ -d &quot;${HOME}/cygwin/bin&quot; ] ; then
+  PATH=&quot;${HOME}/cygwin/bin:${PATH}&quot;
+fi
+</code></pre></noscript></div>
+
+<p>普通は<code>~/bin</code>でいいんだが、ウチはHOME環境変数設定して、データファイルは全てそこにぶち込んでいるた
+め、Cygwinとそれ以外で区別したいので<code>~/cygwin</code>にCygwin系のファイルを置いてる。まあHOMEのルートが
+結構カオスになってきたけど。</p>
+
+<p>んで、設定を有効化(Cygwin再起動でもいいけど)</p>
+
+<pre><code>source ~/.bashrc
+</code></pre>
+
+<h2 id="apt-cyg">apt-cyg導入</h2>
+
+<p>Cygwinでは追加のパッケージをインストールするときにはsetup.exeを使用しなくてはいけないが、apt-cygをイ
+ンストールすることで、コマンドライン上でパッケージをインストールできる。まあlinuxのaptみたいなもの。</p>
+
+<p>かなり便利。</p>
+
+<pre><code>wget http://apt-cyg.googlecode.com/svn/trunk/apt-cyg
+mv apt-cyg ~/cygwin/bin
+chmod +x ~/cygwin/bin/apt-cyg
+</code></pre>
+
+<h3 id="section-3">使い方</h3>
+
+<dl>
+  <dt>検索</dt>
+  <dd>apt-cyg find パッケージ名</dd>
+  <dt>インストール</dt>
+  <dd>apt-cyg install パッケージ名</dd>
+  <dt>アンインストール</dt>
+  <dd>apt-cyg remove パッケージ名</dd>
+  <dt>指定したパッケージの記述を取得(バージョン確認したい時など)</dt>
+  <dd>apt-cyg describe パッケージ名</dd>
+</dl>
+
+<p>デフォルトのミラーサイトは<code>ftp://mirror.mcs.anl.gov/pub/cygwin</code>でちと遠くて遅いので、
+<code>~/.bashrc</code>に以下を追加。</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>~/.bashrc  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="nb">alias </span>apt-cyg<span class="o">=</span><span class="s1">&#39;apt-cyg -m ftp://ftp.jaist.ac.jp/pub/cygwin/ -c /package&#39;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p><code>/etc/setup/last-cache</code>や<code>/etc/setup/last-mirror</code>があればそれを読み込むみたいだから、エイリアスにし
+なくてもいいような気もするけど。</p>
+
+<h3 id="section-4">ちょっと修正</h3>
+
+<p>このスクリプトは大文字・小文字を区別するみたい。検索するときは大文字・小文字を区別しない方が嬉しいの
+で、apt-cygを以下のように修正する</p>
+
+<div><script src="https://gist.github.com/1718936.js?file="></script>
+<noscript><pre><code>--- apt-cyg	2010-04-28 03:55:43.000000000 +0900
++++ ~/cygwin/bin/apt-cyg	2012-01-24 07:24:17.433141300 +0900
+@@ -242,11 +242,11 @@ case &quot;$command&quot; in
+     do
+       echo &quot;&quot;
+       echo Searching for installed packages matching $pkg:
+-      awk '/[^ ]+ [^ ]+ 0/ {if ($1 ~ query) print $1}' query=&quot;$pkg&quot; /etc/setup/installed.db
++      awk -v IGNORECASE=1 '/[^ ]+ [^ ]+ 0/ {if ($1 ~ query) print $1}' query=&quot;$pkg&quot; /etc/setup/installed.db
+       echo &quot;&quot;
+       echo Searching for installable packages matching $pkg:
+-      cat setup.ini | awk -v query=&quot;$pkg&quot; \
++      cat setup.ini | awk -v query=&quot;$pkg&quot; -v IGNORECASE=1 \
+         'BEGIN{RS=&quot;\n\n@ &quot;; FS=&quot;\n&quot;; ORS=&quot;\n&quot;} {if ($1 ~ query) {print $1}}'
+     done
+ 
+   ;;</code></pre></noscript></div>
+
+<p>patch,curlコマンドがあるなら(インストールは<code>apt-cyg install patch curl</code>)、
+以下のようにすればパッチを当てられる</p>
+
+<pre><code>cd ~/cygwin/bin
+curl https://raw.github.com/gist/1718936 &gt; apt-cyg.diff
+patch &lt; apt-cyg.diff
+</code></pre>
+
+<p>動くのを確認したら<code>apt-cyg.diff</code>と<code>apt-cyg.orig</code>は削除していい。</p>
+
+<h2 id="windowsgvim">WindowsのgVimで編集するシェルスクリプト</h2>
+
+<p>Cygwin上でファイル編集するときにWindows上のgVimを利用するようにしてみた。</p>
+
+<p>新規ファイル指定時にパーミッションが000になるみたいなので、umask設定に従って設定し直している(要bcコマンド)</p>
+
+<div><script src="https://gist.github.com/1720551.js?file="></script>
+<noscript><pre><code>#!/bin/bash
+if [[ $# = 1 &amp;&amp; ! -f $1 ]]; then
+    #改行コードunix 同期実行
+    gvim -c &quot;setl ff=unix&quot; `cygpath -w $1`
+    #ファイルが存在するならパーミッション設定
+    if [ -f $1 ]; then
+        #umaskの結果を参照する場合(要bcコマンド)
+        um=`umask`
+        perm=`echo &quot;ibase=8; obase=8; 666 - $um&quot; | bc`
+        chmod $perm &quot;$1&quot;
+        #bcコマンドを使わない場合(固定)
+        #chmod 644 &quot;$1&quot;
+    fi
+else
+    #既存ファイルまたは複数ファイル指定の場合、非同期とする
+    gvim `cygpath -w $*  | awk '{printf $0&quot; &quot;}'` &amp;
+fi
+#gvim -c &quot;setl ff=unix fenc=utf-8&quot; `cygpath -w $*` &amp;</code></pre></noscript></div>
+
+<p>導入はこんな感じ</p>
+
+<pre><code>apt-cyg install bc
+cd ~/cygwin/bin
+curl https://raw.github.com/gist/1720551 &gt; wvi
+chmod +x wvi
+</code></pre>
+
+<p>gVimにパス通ってること前提なので、パスを通したくない場合はgVimの場所を書いておく</p>
+
+<p>使い方は</p>
+
+<pre><code>wvi ~/.bashrc
+</code></pre>
+
+<p>とかって編集するファイルを指定する(複数指定可なんだけど、複数指定してgVim終了時にCygwinターミナルに
+ゴミが混入する)</p>
+
+<h2 id="man">日本語man導入</h2>
+
+<p>日本語manがあるとコマンドの雰囲気が分かりやすいので、導入してみる。<br />
+以下のコマンドを実行。</p>
+
+<p>但し、ダウンロードするファイル(以下の例だと20120115)は最新のものを
+<a href="http://linuxjm.sourceforge.jp/download.html">http://linuxjm.sourceforge.jp/download.html</a>で確認し、ダウンロードする。</p>
+
+<pre><code>apt-cyg install perl lv make
+wget http://linuxjm.sourceforge.jp/man-pages-ja-20120115.tar.gz
+tar -zxvf man-pages-ja*
+cd man-pages-ja*
+</code></pre>
+
+<p>続いて以下のコマンド</p>
+
+<pre><code>groups `whoami`
+make config
+</code></pre>
+
+<p>多分こんな感じで設定していけばいいと思う。</p>
+
+<p><img src="/images/2012/02/01/img04.png" alt="img04" title="make config 1" /></p>
+
+<p><img src="/images/2012/02/01/img05.png" alt="img05" title="make config 2" /></p>
+
+<p>続いてインストール</p>
+
+<pre><code>make install
+</code></pre>
+
+<p><code>man.conf</code>の<code>JNROFF</code>の行(99行目？)を以下のように変更</p>
+
+<pre><code>JNROFF		/usr/bin/groff -DeucJP -Tutf8 -mandoc
+</code></pre>
+
+<p>一応これで導入完了。試しに<code>man man</code>してみると、以下のようになる。</p>
+
+<p><img src="/images/2012/02/01/img06.png" alt="img06" title="man manスクリーンショット" /></p>
+
+<p>インデントがガタガタだが、とりあえず表示は出来た。これを直すのはまた後で考える。</p>
+
+<p>あと日本語manは情報が古い場合がある為、オリジナルmanを参照する必要があるかもしれないので、
+<code>~/.bashrc</code>に以下を追加</p>
+
+<div><script src="https://gist.github.com/1722000.js?file="></script>
+<noscript><pre><code>#英語のmanページを表示
+alias eman='LANG=en_US LC_ALL=en_US /usr/bin/man' 
+</code></pre></noscript></div>
+
+<p>これでman→存在すれば日本語man、eman→オリジナルmanとなる。</p>
+
+<p>jman→日本語man、man→オリジナルmanというエイリアス設定よりこちらの方が私は好き。</p>
+
+<h2 id="tips">ちょっとしたTips</h2>
+
+<h3 id="ls">ls時の色を変える</h3>
+
+<p>デフォルトの<code>ls --color=auto</code>の設定が気に入らない場合、それを変更できる。</p>
+
+<pre><code>cp /etc/DIR_COLORS ~/cygwin/.dircolors
+</code></pre>
+
+<p>として、<code>~/cygwin/.dircolors</code>を編集。あと<code>~/.bashrc</code>に以下を追加</p>
+
+<div><script src="https://gist.github.com/1722119.js?file="></script>
+<noscript><pre><code>if [ -x /usr/bin/dircolors ]; then
+    test -r ~/cygwin/.dircolors &amp;&amp; eval &quot;$(dircolors -b ~/cygwin/.dircolors)&quot; || eval &quot;$(dircolors -b)&quot;
+    #alias dir='dir --color=auto'
+    #alias vdir='vdir --color=auto'
+    alias ls='ls -hF --color=auto'                 # classify files in colour
+    alias dir='ls --color=auto --format=vertical'
+    alias vdir='ls --color=auto --format=long'
+
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+</code></pre></noscript></div>
+
+<p>基本的にUbuntuの<code>~/.bashrc</code>から引っ張ってきたので、grepとかの色分け設定も入ってる。</p>
+
+<p>ディレクトリ→緑、実行可能ファイル→マゼンダ、アーカイブファイル→黄色の設定がWindowsファイラーの設
+定で見慣れてるので、そのように設定。他の項目の色と重なる場合は適当に重複しないように修正した。</p>
+
+<p><img src="/images/2012/02/01/img07.png" alt="img07" title="ls スクリーンショット" /></p>
+
+<h3 id="bashvi">bashをviモードに</h3>
+
+<p><code>~/.bashrc</code>に</p>
+
+<pre><code>set -o vi
+</code></pre>
+
+<p>を追加することで、bashの編集モードをviモードにすることが出来る。</p>
+
+<p>ddやDで行削除出来るのが便利。wやbで単語間移動できるのも便利。</p>
+
+<p>だが挿入モードかノーマルモードかが分からん。カーソル変えるとかプロンプト変えるとか何とかならないか調
+べてみたが、よく分からない。</p>
+
+<h3 id="mintty-1">mintty起動時の初期ディレクトリを指定するには</h3>
+<hr />
+
+<p>ファイラーとかの連携で、ホームディレクトリ以外のフォルダを指定してminttyが起動できると嬉しい。</p>
+
+<p>コマンドラインパラメータに</p>
+
+<pre><code>C:\cygwin\bin\mintty.exe -i /Cygwin-Terminal.ico
+</code></pre>
+
+<p>とかって指定し(デスクトップとかに置かれるショートカットのリンク先から末尾の”-“を取る)、作業フォル
+ダー(ファイラーやランチャーによってはカレントディレクトリとか初期フォルダとか名称が違うと思う)に
+mintty起動時の初期ディレクトリを指定すればOK。</p>
+
+<p>ショートカット作成で例を取ると</p>
+
+<p><img src="/images/2012/02/01/img03.png" alt="img03" title="ショートカット作成" width="350" /></p>
+
+<p>ただし、引数に”-“を指定するのと、指定しないのは微妙に挙動が異なる。詳しくは<a href="/blog/2012/02/02/cygwinmintty/">別稿</a>に譲る</p>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">nukino</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-02T14:33:00+09:00" pubdate data-updated="true">2012年02月 2日(Thu)</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/cygwin/'>cygwin</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://nukino.github.com/blog/2012/02/02/Cygwin/" data-via="nukino_j" data-counturl="http://nukino.github.com/blog/2012/02/02/Cygwin/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/01/24/ThinkpadT61pWindowsXP/" title="Previous Post: ThinkpadT61pをWindowsXPとWindows7デュアルブートにする">&laquo; ThinkpadT61pをWindowsXPとWindows7デュアルブートにする</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/02/02/cygwinmintty/" title="next Post: cygwin(mintty)のシェル設定ファイル読み込み順">cygwin(mintty)のシェル設定ファイル読み込み順 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+  <p>本職は組み込み系の30代Cプログラマ</p>
+  <p>Windows専用でLinuxとかは基本専門外。いつか使いこなせるようになりたいと夢見てる</p>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/02/02/cygwinmintty/">cygwin(mintty)のシェル設定ファイル読み込み順</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/02/Cygwin/">Cygwinを導入してみた</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/24/ThinkpadT61pWindowsXP/">ThinkpadT61pをWindowsXPとWindows7デュアルブートにする</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/16/gist_vim/">Gist.vimの導入とヘルパースクリプトの作成</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/12/Octopress/">Octopress記事作成スクリプトを修正してみた</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Github Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/nukino">@nukino</a> on Github
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'nukino',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("nukino_j", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/nukino_j" class="twitter-follow-button" data-show-count="false">Follow @nukino_j</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - nukino -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'nukinosmemorandum';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://nukino.github.com/blog/2012/02/02/Cygwin/';
+        var disqus_url = 'http://nukino.github.com/blog/2012/02/02/Cygwin/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
