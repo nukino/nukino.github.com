@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Windows | Nukino's memorandum]]></title>
   <link href="http://nukino.github.com/blog/categories/windows/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2012-02-02T23:59:40+09:00</updated>
+  <updated>2012-02-04T04:24:12+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -317,12 +317,12 @@ Think Offerings」を使用して、コピー→ディスクをイメージに�
 
 <p>USBメモリの場合はUSBメモリ自体がハードディスクデバイス0として認識されてるので、コマンドラインで</p>
 
-<pre><code>mbm install 1
+<pre class="cmdline"><code>mbm install 1
 </code></pre>
 
 <p>と入力しないといけないと思う(FD/CDの場合は<code>mbm install</code>で良い筈)。不安なら</p>
 
-<pre><code>mbm edit
+<pre class="cmdline"><code>mbm edit
 </code></pre>
 
 <p>として、デバイスを確認してからインストールすれば良い</p>
@@ -522,13 +522,13 @@ DOSなので、<a href="http://www.vector.co.jp/soft/win95/util/se323199.html">M
 
 <p>DOS起動FDを作成し、<code>mbm.com</code>と出来たメニューファイル(.mbm)を入れて、</p>
 
-<pre><code>mbm setmenu
+<pre class="cmdline"><code>mbm setmenu
 </code></pre>
 
 <p>として、メニューファイル、書き込むシリンダ番号を指定するのが一番簡単。この時書き込むシリンダ番号を間
 違えると、OSが起動しなくなったりするかもしれないので注意。</p>
 
-<pre><code>mbm edit
+<pre class="cmdline"><code>mbm edit
 </code></pre>
 
 <p>として、未使用シリンダを確認した上で使用した方がいい。</p>

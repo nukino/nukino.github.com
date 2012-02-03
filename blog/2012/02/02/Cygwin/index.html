@@ -201,7 +201,7 @@ setx MAKE_MODE unix</code></pre></noscript></div>
 <p>デフォルトのシェル環境設定ファイルは<code>/etc/skell</code>にあるので、これをホームディレクトリにコピーする。
 (Cygwinで以下のコマンドを実行。上書きされると困るかもしれないので’-i’オプション付けてある)</p>
 
-<pre><code>cp -i /etc/skel/.* ~/
+<pre class="cmdline"><code>cp -i /etc/skel/.* ~/
 </code></pre>
 
 <p>また発生条件がイマイチ定かではないが、独自のHOME環境変数(<code>e:\user</code>など)を設定しているとCygwin上の
@@ -236,7 +236,7 @@ setx MAKE_MODE unix</code></pre></noscript></div>
 
 <p>より安全に行くなら、mintty上のロケール設定をデフォルトに戻し、コマンドプロンプトで</p>
 
-<pre><code>setx LC_CTYPE ja_JP.UTF-8
+<pre class="cmdline"><code>setx LC_CTYPE ja_JP.UTF-8
 </code></pre>
 
 <p>として、文字列処理のみを日本語対応にするという手もあるが、私はグローバルな環境変数は極力いじりたくな
@@ -252,7 +252,7 @@ setx MAKE_MODE unix</code></pre></noscript></div>
 
 <p>Cygwinのコマンドラインで</p>
 
-<pre><code>mkdir ~/cygwin/bin
+<pre class="cmdline"><code>mkdir ~/cygwin/bin
 </code></pre>
 
 <p>として、<code>~/.bashrc</code>に以下を追加</p>
@@ -269,7 +269,7 @@ fi
 
 <p>んで、設定を有効化(Cygwin再起動でもいいけど)</p>
 
-<pre><code>source ~/.bashrc
+<pre class="cmdline"><code>source ~/.bashrc
 </code></pre>
 
 <h2 id="apt-cyg">apt-cyg導入</h2>
@@ -279,7 +279,7 @@ fi
 
 <p>かなり便利。</p>
 
-<pre><code>wget http://apt-cyg.googlecode.com/svn/trunk/apt-cyg
+<pre class="cmdline"><code>wget http://apt-cyg.googlecode.com/svn/trunk/apt-cyg
 mv apt-cyg ~/cygwin/bin
 chmod +x ~/cygwin/bin/apt-cyg
 </code></pre>
@@ -334,7 +334,7 @@ chmod +x ~/cygwin/bin/apt-cyg
 <p>patch,curlコマンドがあるなら(インストールは<code>apt-cyg install patch curl</code>)、
 以下のようにすればパッチを当てられる</p>
 
-<pre><code>cd ~/cygwin/bin
+<pre class="cmdline"><code>cd ~/cygwin/bin
 curl https://raw.github.com/gist/1718936 &gt; apt-cyg.diff
 patch &lt; apt-cyg.diff
 </code></pre>
@@ -369,7 +369,7 @@ fi
 
 <p>導入はこんな感じ</p>
 
-<pre><code>apt-cyg install bc
+<pre class="cmdline"><code>apt-cyg install bc
 cd ~/cygwin/bin
 curl https://raw.github.com/gist/1720551 &gt; wvi
 chmod +x wvi
@@ -379,7 +379,7 @@ chmod +x wvi
 
 <p>使い方は</p>
 
-<pre><code>wvi ~/.bashrc
+<pre class="cmdline"><code>wvi ~/.bashrc
 </code></pre>
 
 <p>とかって編集するファイルを指定する(複数指定可なんだけど、複数指定してgVim終了時にCygwinターミナルに
@@ -393,7 +393,7 @@ chmod +x wvi
 <p>但し、ダウンロードするファイル(以下の例だと20120115)は最新のものを
 <a href="http://linuxjm.sourceforge.jp/download.html">http://linuxjm.sourceforge.jp/download.html</a>で確認し、ダウンロードする。</p>
 
-<pre><code>apt-cyg install perl lv make
+<pre class="cmdline"><code>apt-cyg install perl lv make
 wget http://linuxjm.sourceforge.jp/man-pages-ja-20120115.tar.gz
 tar -zxvf man-pages-ja*
 cd man-pages-ja*
@@ -401,7 +401,7 @@ cd man-pages-ja*
 
 <p>続いて以下のコマンド</p>
 
-<pre><code>groups `whoami`
+<pre class="cmdline"><code>groups `whoami`
 make config
 </code></pre>
 
@@ -413,7 +413,7 @@ make config
 
 <p>続いてインストール</p>
 
-<pre><code>make install
+<pre class="cmdline"><code>make install
 </code></pre>
 
 <p><code>man.conf</code>の<code>JNROFF</code>の行(99行目？)を以下のように変更</p>
@@ -445,7 +445,7 @@ alias eman='LANG=en_US LC_ALL=en_US /usr/bin/man'
 
 <p>デフォルトの<code>ls --color=auto</code>の設定が気に入らない場合、それを変更できる。</p>
 
-<pre><code>cp /etc/DIR_COLORS ~/cygwin/.dircolors
+<pre class="cmdline"><code>cp /etc/DIR_COLORS ~/cygwin/.dircolors
 </code></pre>
 
 <p>として、<code>~/cygwin/.dircolors</code>を編集。あと<code>~/.bashrc</code>に以下を追加</p>
@@ -579,6 +579,14 @@ mintty起動時の初期ディレクトリを指定すればOK。</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2012/02/03/Cygwinman/">Cygwinで日本語manのレイアウト崩れを直す</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/03/bashvi/">bashのviモード</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/02/02/cygwinmintty/">cygwin(mintty)のシェル設定ファイル読み込み順</a>
       </li>
     
@@ -588,14 +596,6 @@ mintty起動時の初期ディレクトリを指定すればOK。</p>
     
       <li class="post">
         <a href="/blog/2012/01/24/ThinkpadT61pWindowsXP/">ThinkpadT61pをWindowsXPとWindows7デュアルブートにする</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/01/16/gist_vim/">Gist.vimの導入とヘルパースクリプトの作成</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/01/12/Octopress/">Octopress記事作成スクリプトを修正してみた</a>
       </li>
     
   </ul>

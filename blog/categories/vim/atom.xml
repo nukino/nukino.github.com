@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vim | Nukino's memorandum]]></title>
   <link href="http://nukino.github.com/blog/categories/vim/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2012-02-02T23:59:40+09:00</updated>
+  <updated>2012-02-04T04:24:12+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -751,7 +751,7 @@ command! -nargs=1 Jlhelpg       call FuncJHelpgrep(&lt;q-args&gt;, 1)</code></pr
 
 <p>サーバーPCのコマンドラインで</p>
 
-<pre><code>sudo apt-get install ssh
+<pre class="cmdline"><code>sudo apt-get install ssh
 </code></pre>
 
 <p>とする。別にOpen SSHなどでも構わない。</p>
@@ -827,7 +827,7 @@ endif</code></pre></noscript></div>
 
 <p>としてサーバー上で</p>
 
-<pre><code>/etc/init.d/ssh restart
+<pre class="cmdline"><code>/etc/init.d/ssh restart
 </code></pre>
 
 <p>とすれば設定が有効化します。</p>

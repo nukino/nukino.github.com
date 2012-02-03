@@ -4,7 +4,7 @@
   <title><![CDATA[Category: octopress | Nukino's memorandum]]></title>
   <link href="http://nukino.github.com/blog/categories/octopress/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2012-02-02T23:59:40+09:00</updated>
+  <updated>2012-02-04T04:24:12+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -670,7 +670,7 @@ keywords: key1, key2
 <p>但し書いてあるとおり<code>bundle install</code>とすると、システムのgem領域にrubyライブラリがインストールされてしまう
 ので、</p>
 
-<pre><code>cd octopress
+<pre class="cmdline"><code>cd octopress
 bundle install --path=vendor/bundle
 </code></pre>
 
@@ -679,7 +679,7 @@ bundle install --path=vendor/bundle
 
 <p>gem領域を再構築したい場合は</p>
 
-<pre><code>gem list --local | cut -d" " -f1 | xargs gem uninstall
+<pre class="cmdline"><code>gem list --local | cut -d" " -f1 | xargs gem uninstall
 </code></pre>
 
 <p>として、システムのgem領域に入ってるライブラリを全部アンインストールした後で必要なライブラリ(bundler
@@ -699,7 +699,7 @@ bundle install --path=vendor/bundle
 
 <p>Octopress本家の更新かけたり、間違えて<code>rake install</code>とかしたときに消えたりしたら悲しいので</p>
 
-<pre><code>cd octopress
+<pre class="cmdline"><code>cd octopress
 cp -ar .themes/classic/ .themes/nukino
 cp -arf sass/ .themes/nukino/
 </code></pre>
@@ -736,7 +736,7 @@ webrickサーバー）が遅い</a>に対策が書いてあったの
   <li>以下のコマンドを打つ</li>
 </ol>
 
-<pre><code>cd octopress
+<pre class="cmdline"><code>cd octopress
 git add .
 git commit -m '&lt;message&gt;'
 git remote add bitbucket git@bitbucket.org:&lt;username&gt;/octopress.git
@@ -750,7 +750,7 @@ rubyライブラリごとpushされると思う(試してないけど)。</p>
 
 <h3 id="ruby">rubyライブラリのアップデート</h3>
 
-<pre><code>bundle update
+<pre class="cmdline"><code>bundle update
 </code></pre>
 
 <p>Bundler 1.1を使ってる＆<code>bundle install</code>時にパスを指定した場合、古くて使ってないライブラリを削除して
@@ -760,7 +760,7 @@ rubyライブラリごとpushされると思う(試してないけど)。</p>
 
 <h3 id="section-4">記事作成</h3>
 
-<pre><code>rake new_post['title']
+<pre class="cmdline"><code>rake new_post['title']
 </code></pre>
 
 <p>なのだが、SSH経由で運用してるため、いちいち打つのが面倒(‘title’に日本語入れたら問題ありそうだし)</p>
@@ -934,7 +934,7 @@ kramdownも対応してるみたいなので、<code>_config.yml</code>を</p>
 
 <h3 id="section-5">記事のプレビュー</h3>
 
-<pre><code>cd octopress
+<pre class="cmdline"><code>cd octopress
 rake generate	#必要なとき
 rake preview
 </code></pre>
@@ -951,7 +951,7 @@ rake preview
 
 <h3 id="section-6">記事の投稿</h3>
 
-<pre><code>cd octopress
+<pre class="cmdline"><code>cd octopress
 rake generate	#必要なとき
 rake deploy
 </code></pre>
@@ -962,7 +962,7 @@ rake deploy
 
 <h3 id="section-7">キャッシュの削除</h3>
 
-<pre><code>rake clean
+<pre class="cmdline"><code>rake clean
 </code></pre>
 
 <p><code>.pygments-cache</code>、<code>.gist-cache</code>、<code>.sass-cache</code>内のファイルと<code>source/stylesheets/screen.css</code>を削除。</p>
@@ -971,7 +971,7 @@ rake deploy
 
 <h3 id="octopress">Octopressの更新</h3>
 
-<pre><code>git fetch octopress
+<pre class="cmdline"><code>git fetch octopress
 git pull octopress master
 </code></pre>
 

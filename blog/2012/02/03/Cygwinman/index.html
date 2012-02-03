@@ -1,0 +1,461 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Cygwinで日本語manのレイアウト崩れを直す - Nukino's memorandum</title>
+  <meta name="author" content="nukino">
+
+  
+  <meta name="description" content="Cygwin1.7.9において /etc/man.confに JNROFF /usr/bin/groff -DeucJP -Tutf8 -mandoc と記述すれば、日本語manが表示されるが、レイアウトが崩れるので、これを修正しようと試みた 個人的にバージョンダウンとかは嫌いなので、 &hellip;">
+  <meta name="keywords" content="cygwin, groff">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://nukino.github.com/blog/2012/02/03/Cygwinman">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Nukino's memorandum" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27974112-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Nukino's memorandum</a></h1>
+  
+    <h2>とあるソフト屋の覚え書き</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:nukino.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Cygwinで日本語manのレイアウト崩れを直す</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-03T01:55:00+09:00" pubdate data-updated="true">2012年02月 3日(Fri)</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Cygwin1.7.9において</p>
+
+<p><code>/etc/man.conf</code>に</p>
+
+<pre><code>JNROFF		/usr/bin/groff -DeucJP -Tutf8 -mandoc
+</code></pre>
+
+<p>と記述すれば、日本語manが表示されるが、レイアウトが崩れるので、これを修正しようと試みた</p>
+
+<p>個人的にバージョンダウンとかは嫌いなので、新しいバージョン、新しいツールを導入する方向。</p>
+
+<!-- more -->
+
+<h2 id="groff-121">groff 1.21のインストール</h2>
+
+<p>別マシンにインストールしてあるUbuntu 11.10では日本語manのレイアウト崩れは起こっていない。
+そこでgroffのバージョンを確認すると1.21となっていたので、バージョンアップすればいけんじゃね？</p>
+
+<p>ということでインストールしてみた。</p>
+
+<p>手法としては</p>
+
+<ol>
+  <li>旧バージョンと共存させる</li>
+  <li>新バージョンに完全に置き換える</li>
+</ol>
+
+<p>の2つがあると思う。</p>
+
+<p>「倒れるときは前のめり」というモットーの元、私は「2.」で行くことにする(とか何とか言いつつしっかり
+<code>C:\Cygwin</code>はバックアップ取っといたけど)</p>
+
+<h3 id="section">インストールの前に</h3>
+
+<p>gcc4、make辺りは必要だと思うので、インストールしてないなら、インストールしておく。</p>
+
+<p>また、新バージョンに置き換える場合はgroffをアンインストールしておく(groff-coreもいらんかも)。</p>
+
+<pre class="cmdline"><code>apt-cyg install gcc4 make
+apt-cyg remove groff
+</code></pre>
+
+<p>apt-cygを導入してない場合はsetup.exeを使用する。apt-cygの導入方法については<a href="/blog/2012/02/02/Cygwin/#apt-cyg">ここ</a>参照。</p>
+
+<h3 id="section-1">インストール</h3>
+
+<p>Cygwinのパッケージはないので、ソースコードからビルドする。</p>
+
+<pre class="cmdline"><code>wget ftp://ftp.ring.gr.jp/pub/GNU/groff/groff-1.21.tar.gz
+tar -zxvf groff-1.21.tar.gz
+cd groff-1.21
+./configure --prefix=/usr
+make
+make install
+</code></pre>
+
+<p>旧バージョンと共存させる場合は<code>./configure</code>の際のprefixを変える(指定しなければ<code>/usr/local</code>みたい)。
+また、<code>/etc/man.conf</code>を編集しておくこと(置き換えの場合は不要)</p>
+
+<p>一応</p>
+
+<pre class="cmdline"><code>which groff
+groff --version
+</code></pre>
+
+<p>として、きちんとインストールされてるのを確認しておく。</p>
+
+<h3 id="section-2">スクリーンショット</h3>
+
+<p><code>man man</code>としたときの比較</p>
+
+<h4 id="groff-1201">変更前(groff 1.20.1)</h4>
+
+<p><img src="/images/2012/02/03/img00.png" alt="img00" title="変更前 man manスクリーンショット" /></p>
+
+<h4 id="groff-121-1">変更後(groff 1.21)</h4>
+
+<p><img src="/images/2012/02/03/img01.png" alt="img01" title="groff変更後 man manスクリーンショット" /></p>
+
+<p>だいぶましになったが、特に英語と日本語が混じっている行がおかしいのと、インデントの効いていない行があ
+る。</p>
+
+<h2 id="man-db">man-dbのインストール</h2>
+
+<p>再びUbuntu 11.10にて、<code>man</code>のバージョンを確認すると2.6.0.2だった。Cygwinのバージョン(1.6g)とだいぶ違う。</p>
+
+<p>Ubuntu 11.10に入ってるmanのパッケージ名は正確にはman-dbというらしい</p>
+
+<p>man-dbは何か設定方法が違うっぽい(<code>/etc/manpath.conf</code>しかない？？)が、設定項目がないと言うことはデ
+フォルトで使えるようになってるんだろう。ということで、とりあえずインストールしてみる。</p>
+
+<h3 id="section-3">準備</h3>
+
+<p>まずはmanをアンインストール。あとDBのライブラリが必要なのでインストールする。<a href="http://packages.ubuntu.com/oneiric/man-db">
+Ubuntu man-dbの依存関係</a>を見ると、gdbmがいいのかな？
+(db4.5でもconfigureまで通るのは確認した)</p>
+
+<pre class="cmdline"><code>apt-cyg remove man
+apt-cyg install libgdbm-devel
+</code></pre>
+
+<p>また、libpipelineというライブラリがいるみたいだが、Cygwinのパッケージにはない。ググると
+<a href="http://fd0.x0.to/cygwin/">http://fd0.x0.to/cygwin/</a>というところにあったので、これを使用する
+(いいのかな？)</p>
+
+<pre class="cmdline"><code>apt-cyg -m http://fd0.x0.to/cygwin/ install libpipeline-devel
+</code></pre>
+
+<h3 id="section-4">インストール</h3>
+
+<p>man-db 2.6.0.2のソースコードをダウンロード。</p>
+
+<p><a href="http://download.savannah.gnu.org/releases/man-db/man-db-2.6.0.2.tar.gz">http://download.savannah.gnu.org/releases/man-db/man-db-2.6.0.2.tar.gz</a><br />
+が公式っぽいので、そこからダウンロードしようとしたけど、出来なかったので、<br />
+<a href="http://sourceforge.jp/projects/sfnet_buluoos/downloads/0.3/src/man-db-2.6.0.2.tar.gz/">http://sourceforge.jp/projects/sfnet_buluoos/downloads/0.3/src/man-db-2.6.0.2.tar.gz/</a><br />
+からダウンロード。</p>
+
+<pre class="cmdline_noimg"><code>$ cd &lt;man-db-2.6.0.2.tar.gzのあるディレクトリ&gt;
+$ tar -zxvf man-db-2.6.0.2.tar.gz
+$ PKG_CONFIG=/usr/bin/true \
+    libpipeline_CFLAGS='' \
+    libpipeline_LIBS='-lpipeline' \
+    ./configure --prefix=/usr --libexecdir=/usr/lib \
+    --docdir=/usr/share/doc/man-db-2.6.0.2 --sysconfdir=/etc \
+    --disable-setuid --with-browser=/usr/bin/lynx \
+    --with-vgrind=/usr/bin/vgrind --with-grap=/usr/bin/grap
+$ make
+$ make install
+</code></pre>
+
+<p>DBのライブラリ(ヘッダーなど含む)が複数ある場合はgdbm→db5→db4→･･･の順でヘッダファイルを検索するみたい。
+特定したい場合はconfigureで<code>--with-db=db4</code>とか指定すればいいみたい(未確認)。</p>
+
+<p>参考ページによると<code>make check</code>としたらきちんとmakeされてるかどうかを確認できるらしいので、不安なら
+<code>make install</code>の前に確認する。</p>
+
+<p>一応</p>
+
+<pre class="cmdline"><code>which man
+man --version
+</code></pre>
+
+<p>としてインストールを確認。</p>
+
+<dl>
+  <dt>参考ページ</dt>
+  <dd><a href="http://lfsbookja.sourceforge.jp/7.0.ja/chapter06/man-db.html">http://lfsbookja.sourceforge.jp/7.0.ja/chapter06/man-db.html</a></dd>
+</dl>
+
+<h3 id="section-5">スクリーンショット</h3>
+
+<p><code>man man</code>したときのスクリーンショット</p>
+
+<p><img src="/images/2012/02/03/img02.png" alt="img02" title="man-db変更後 man manスクリーンショット" /></p>
+
+<p><strong class="emphasis-soft">びゅーてほー</strong></p>
+
+<p>あと、manのマニュアルがman-dbのものに自動的に切り替わってる。素晴らしい。</p>
+
+<p>設定ファイルは<code>/etc/man_db.conf</code>。全く設定せずに上記の画面が出た。やっぱりこうでなくっちゃ。</p>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">nukino</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-03T01:55:00+09:00" pubdate data-updated="true">2012年02月 3日(Fri)</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/cygwin/'>cygwin</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://nukino.github.com/blog/2012/02/03/Cygwinman/" data-via="nukino_j" data-counturl="http://nukino.github.com/blog/2012/02/03/Cygwinman/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/02/03/bashvi/" title="Previous Post: bashのviモード">&laquo; bashのviモード</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+  <p>本職は組み込み系の30代Cプログラマ</p>
+  <p>Windows専用でLinuxとかは基本専門外。いつか使いこなせるようになりたいと夢見てる</p>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/02/03/Cygwinman/">Cygwinで日本語manのレイアウト崩れを直す</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/03/bashvi/">bashのviモード</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/02/cygwinmintty/">cygwin(mintty)のシェル設定ファイル読み込み順</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/02/Cygwin/">Cygwinを導入してみた</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/24/ThinkpadT61pWindowsXP/">ThinkpadT61pをWindowsXPとWindows7デュアルブートにする</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Github Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/nukino">@nukino</a> on Github
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'nukino',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("nukino_j", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/nukino_j" class="twitter-follow-button" data-show-count="false">Follow @nukino_j</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - nukino -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'nukinosmemorandum';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://nukino.github.com/blog/2012/02/03/Cygwinman/';
+        var disqus_url = 'http://nukino.github.com/blog/2012/02/03/Cygwinman/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

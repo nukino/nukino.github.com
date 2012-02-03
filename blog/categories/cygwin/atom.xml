@@ -4,7 +4,7 @@
   <title><![CDATA[Category: cygwin | Nukino's memorandum]]></title>
   <link href="http://nukino.github.com/blog/categories/cygwin/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2012-02-02T23:59:40+09:00</updated>
+  <updated>2012-02-04T04:24:12+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -12,6 +12,189 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Cygwinで日本語manのレイアウト崩れを直す]]></title>
+    <link href="http://nukino.github.com/blog/2012/02/03/Cygwinman/"/>
+    <updated>2012-02-03T01:55:00+09:00</updated>
+    <id>http://nukino.github.com/blog/2012/02/03/Cygwinman</id>
+    <content type="html"><![CDATA[<p>Cygwin1.7.9において</p>
+
+<p><code>/etc/man.conf</code>に</p>
+
+<pre><code>JNROFF		/usr/bin/groff -DeucJP -Tutf8 -mandoc
+</code></pre>
+
+<p>と記述すれば、日本語manが表示されるが、レイアウトが崩れるので、これを修正しようと試みた</p>
+
+<p>個人的にバージョンダウンとかは嫌いなので、新しいバージョン、新しいツールを導入する方向。</p>
+
+<!-- more -->
+
+<h2 id="groff-121">groff 1.21のインストール</h2>
+
+<p>別マシンにインストールしてあるUbuntu 11.10では日本語manのレイアウト崩れは起こっていない。
+そこでgroffのバージョンを確認すると1.21となっていたので、バージョンアップすればいけんじゃね？</p>
+
+<p>ということでインストールしてみた。</p>
+
+<p>手法としては</p>
+
+<ol>
+  <li>旧バージョンと共存させる</li>
+  <li>新バージョンに完全に置き換える</li>
+</ol>
+
+<p>の2つがあると思う。</p>
+
+<p>「倒れるときは前のめり」というモットーの元、私は「2.」で行くことにする(とか何とか言いつつしっかり
+<code>C:\Cygwin</code>はバックアップ取っといたけど)</p>
+
+<h3 id="section">インストールの前に</h3>
+
+<p>gcc4、make辺りは必要だと思うので、インストールしてないなら、インストールしておく。</p>
+
+<p>また、新バージョンに置き換える場合はgroffをアンインストールしておく(groff-coreもいらんかも)。</p>
+
+<pre class="cmdline"><code>apt-cyg install gcc4 make
+apt-cyg remove groff
+</code></pre>
+
+<p>apt-cygを導入してない場合はsetup.exeを使用する。apt-cygの導入方法については<a href="/blog/2012/02/02/Cygwin/#apt-cyg">ここ</a>参照。</p>
+
+<h3 id="section-1">インストール</h3>
+
+<p>Cygwinのパッケージはないので、ソースコードからビルドする。</p>
+
+<pre class="cmdline"><code>wget ftp://ftp.ring.gr.jp/pub/GNU/groff/groff-1.21.tar.gz
+tar -zxvf groff-1.21.tar.gz
+cd groff-1.21
+./configure --prefix=/usr
+make
+make install
+</code></pre>
+
+<p>旧バージョンと共存させる場合は<code>./configure</code>の際のprefixを変える(指定しなければ<code>/usr/local</code>みたい)。
+また、<code>/etc/man.conf</code>を編集しておくこと(置き換えの場合は不要)</p>
+
+<p>一応</p>
+
+<pre class="cmdline"><code>which groff
+groff --version
+</code></pre>
+
+<p>として、きちんとインストールされてるのを確認しておく。</p>
+
+<h3 id="section-2">スクリーンショット</h3>
+
+<p><code>man man</code>としたときの比較</p>
+
+<h4 id="groff-1201">変更前(groff 1.20.1)</h4>
+
+<p><img src="/images/2012/02/03/img00.png" alt="img00" title="変更前 man manスクリーンショット" /></p>
+
+<h4 id="groff-121-1">変更後(groff 1.21)</h4>
+
+<p><img src="/images/2012/02/03/img01.png" alt="img01" title="groff変更後 man manスクリーンショット" /></p>
+
+<p>だいぶましになったが、特に英語と日本語が混じっている行がおかしいのと、インデントの効いていない行があ
+る。</p>
+
+<h2 id="man-db">man-dbのインストール</h2>
+
+<p>再びUbuntu 11.10にて、<code>man</code>のバージョンを確認すると2.6.0.2だった。Cygwinのバージョン(1.6g)とだいぶ違う。</p>
+
+<p>Ubuntu 11.10に入ってるmanのパッケージ名は正確にはman-dbというらしい</p>
+
+<p>man-dbは何か設定方法が違うっぽい(<code>/etc/manpath.conf</code>しかない？？)が、設定項目がないと言うことはデ
+フォルトで使えるようになってるんだろう。ということで、とりあえずインストールしてみる。</p>
+
+<h3 id="section-3">準備</h3>
+
+<p>まずはmanをアンインストール。あとDBのライブラリが必要なのでインストールする。<a href="http://packages.ubuntu.com/oneiric/man-db">
+Ubuntu man-dbの依存関係</a>を見ると、gdbmがいいのかな？
+(db4.5でもconfigureまで通るのは確認した)</p>
+
+<pre class="cmdline"><code>apt-cyg remove man
+apt-cyg install libgdbm-devel
+</code></pre>
+
+<p>また、libpipelineというライブラリがいるみたいだが、Cygwinのパッケージにはない。ググると
+<a href="http://fd0.x0.to/cygwin/">http://fd0.x0.to/cygwin/</a>というところにあったので、これを使用する
+(いいのかな？)</p>
+
+<pre class="cmdline"><code>apt-cyg -m http://fd0.x0.to/cygwin/ install libpipeline-devel
+</code></pre>
+
+<h3 id="section-4">インストール</h3>
+
+<p>man-db 2.6.0.2のソースコードをダウンロード。</p>
+
+<p><a href="http://download.savannah.gnu.org/releases/man-db/man-db-2.6.0.2.tar.gz">http://download.savannah.gnu.org/releases/man-db/man-db-2.6.0.2.tar.gz</a><br />
+が公式っぽいので、そこからダウンロードしようとしたけど、出来なかったので、<br />
+<a href="http://sourceforge.jp/projects/sfnet_buluoos/downloads/0.3/src/man-db-2.6.0.2.tar.gz/">http://sourceforge.jp/projects/sfnet_buluoos/downloads/0.3/src/man-db-2.6.0.2.tar.gz/</a><br />
+からダウンロード。</p>
+
+<pre class="cmdline_noimg"><code>$ cd &lt;man-db-2.6.0.2.tar.gzのあるディレクトリ&gt;
+$ tar -zxvf man-db-2.6.0.2.tar.gz
+$ PKG_CONFIG=/usr/bin/true \
+    libpipeline_CFLAGS='' \
+    libpipeline_LIBS='-lpipeline' \
+    ./configure --prefix=/usr --libexecdir=/usr/lib \
+    --docdir=/usr/share/doc/man-db-2.6.0.2 --sysconfdir=/etc \
+    --disable-setuid --with-browser=/usr/bin/lynx \
+    --with-vgrind=/usr/bin/vgrind --with-grap=/usr/bin/grap
+$ make
+$ make install
+</code></pre>
+
+<p>DBのライブラリ(ヘッダーなど含む)が複数ある場合はgdbm→db5→db4→･･･の順でヘッダファイルを検索するみたい。
+特定したい場合はconfigureで<code>--with-db=db4</code>とか指定すればいいみたい(未確認)。</p>
+
+<p>参考ページによると<code>make check</code>としたらきちんとmakeされてるかどうかを確認できるらしいので、不安なら
+<code>make install</code>の前に確認する。</p>
+
+<p>一応</p>
+
+<pre class="cmdline"><code>which man
+man --version
+</code></pre>
+
+<p>としてインストールを確認。</p>
+
+<dl>
+  <dt>参考ページ</dt>
+  <dd><a href="http://lfsbookja.sourceforge.jp/7.0.ja/chapter06/man-db.html">http://lfsbookja.sourceforge.jp/7.0.ja/chapter06/man-db.html</a></dd>
+</dl>
+
+<h3 id="section-5">スクリーンショット</h3>
+
+<p><code>man man</code>したときのスクリーンショット</p>
+
+<p><img src="/images/2012/02/03/img02.png" alt="img02" title="man-db変更後 man manスクリーンショット" /></p>
+
+<p><strong class="emphasis-soft">びゅーてほー</strong></p>
+
+<p>あと、manのマニュアルがman-dbのものに自動的に切り替わってる。素晴らしい。</p>
+
+<p>設定ファイルは<code>/etc/man_db.conf</code>。全く設定せずに上記の画面が出た。やっぱりこうでなくっちゃ。</p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[bashのviモード]]></title>
+    <link href="http://nukino.github.com/blog/2012/02/03/bashvi/"/>
+    <updated>2012-02-03T00:28:00+09:00</updated>
+    <id>http://nukino.github.com/blog/2012/02/03/bashvi</id>
+    <content type="html"><![CDATA[<!-- more -->
+
+<h2 id="bashvi">bashのviモードキー定義一覧</h2>
+
+<h2 id="ctrls">Ctrl+Sが効かない</h2>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[cygwin(mintty)のシェル設定ファイル読み込み順]]></title>
@@ -384,7 +567,7 @@ setx MAKE_MODE unix</code></pre></noscript></div>
 <p>デフォルトのシェル環境設定ファイルは<code>/etc/skell</code>にあるので、これをホームディレクトリにコピーする。
 (Cygwinで以下のコマンドを実行。上書きされると困るかもしれないので’-i’オプション付けてある)</p>
 
-<pre><code>cp -i /etc/skel/.* ~/
+<pre class="cmdline"><code>cp -i /etc/skel/.* ~/
 </code></pre>
 
 <p>また発生条件がイマイチ定かではないが、独自のHOME環境変数(<code>e:\user</code>など)を設定しているとCygwin上の
@@ -419,7 +602,7 @@ setx MAKE_MODE unix</code></pre></noscript></div>
 
 <p>より安全に行くなら、mintty上のロケール設定をデフォルトに戻し、コマンドプロンプトで</p>
 
-<pre><code>setx LC_CTYPE ja_JP.UTF-8
+<pre class="cmdline"><code>setx LC_CTYPE ja_JP.UTF-8
 </code></pre>
 
 <p>として、文字列処理のみを日本語対応にするという手もあるが、私はグローバルな環境変数は極力いじりたくな
@@ -435,7 +618,7 @@ setx MAKE_MODE unix</code></pre></noscript></div>
 
 <p>Cygwinのコマンドラインで</p>
 
-<pre><code>mkdir ~/cygwin/bin
+<pre class="cmdline"><code>mkdir ~/cygwin/bin
 </code></pre>
 
 <p>として、<code>~/.bashrc</code>に以下を追加</p>
@@ -453,7 +636,7 @@ fi
 
 <p>んで、設定を有効化(Cygwin再起動でもいいけど)</p>
 
-<pre><code>source ~/.bashrc
+<pre class="cmdline"><code>source ~/.bashrc
 </code></pre>
 
 <h2 id="apt-cyg">apt-cyg導入</h2>
@@ -463,7 +646,7 @@ fi
 
 <p>かなり便利。</p>
 
-<pre><code>wget http://apt-cyg.googlecode.com/svn/trunk/apt-cyg
+<pre class="cmdline"><code>wget http://apt-cyg.googlecode.com/svn/trunk/apt-cyg
 mv apt-cyg ~/cygwin/bin
 chmod +x ~/cygwin/bin/apt-cyg
 </code></pre>
@@ -519,7 +702,7 @@ chmod +x ~/cygwin/bin/apt-cyg
 <p>patch,curlコマンドがあるなら(インストールは<code>apt-cyg install patch curl</code>)、
 以下のようにすればパッチを当てられる</p>
 
-<pre><code>cd ~/cygwin/bin
+<pre class="cmdline"><code>cd ~/cygwin/bin
 curl https://raw.github.com/gist/1718936 &gt; apt-cyg.diff
 patch &lt; apt-cyg.diff
 </code></pre>
@@ -555,7 +738,7 @@ fi
 
 <p>導入はこんな感じ</p>
 
-<pre><code>apt-cyg install bc
+<pre class="cmdline"><code>apt-cyg install bc
 cd ~/cygwin/bin
 curl https://raw.github.com/gist/1720551 &gt; wvi
 chmod +x wvi
@@ -565,7 +748,7 @@ chmod +x wvi
 
 <p>使い方は</p>
 
-<pre><code>wvi ~/.bashrc
+<pre class="cmdline"><code>wvi ~/.bashrc
 </code></pre>
 
 <p>とかって編集するファイルを指定する(複数指定可なんだけど、複数指定してgVim終了時にCygwinターミナルに
@@ -579,7 +762,7 @@ chmod +x wvi
 <p>但し、ダウンロードするファイル(以下の例だと20120115)は最新のものを
 <a href="http://linuxjm.sourceforge.jp/download.html">http://linuxjm.sourceforge.jp/download.html</a>で確認し、ダウンロードする。</p>
 
-<pre><code>apt-cyg install perl lv make
+<pre class="cmdline"><code>apt-cyg install perl lv make
 wget http://linuxjm.sourceforge.jp/man-pages-ja-20120115.tar.gz
 tar -zxvf man-pages-ja*
 cd man-pages-ja*
@@ -587,7 +770,7 @@ cd man-pages-ja*
 
 <p>続いて以下のコマンド</p>
 
-<pre><code>groups `whoami`
+<pre class="cmdline"><code>groups `whoami`
 make config
 </code></pre>
 
@@ -599,7 +782,7 @@ make config
 
 <p>続いてインストール</p>
 
-<pre><code>make install
+<pre class="cmdline"><code>make install
 </code></pre>
 
 <p><code>man.conf</code>の<code>JNROFF</code>の行(99行目？)を以下のように変更</p>
@@ -632,7 +815,7 @@ alias eman='LANG=en_US LC_ALL=en_US /usr/bin/man'
 
 <p>デフォルトの<code>ls --color=auto</code>の設定が気に入らない場合、それを変更できる。</p>
 
-<pre><code>cp /etc/DIR_COLORS ~/cygwin/.dircolors
+<pre class="cmdline"><code>cp /etc/DIR_COLORS ~/cygwin/.dircolors
 </code></pre>
 
 <p>として、<code>~/cygwin/.dircolors</code>を編集。あと<code>~/.bashrc</code>に以下を追加</p>
