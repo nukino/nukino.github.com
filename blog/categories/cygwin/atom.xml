@@ -4,7 +4,7 @@
   <title><![CDATA[Category: cygwin | Nukino's memorandum]]></title>
   <link href="http://nukino.github.com/blog/categories/cygwin/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2012-02-04T04:24:12+09:00</updated>
+  <updated>2012-02-04T04:27:55+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Cygwinで日本語manのレイアウト崩れを直す]]></title>
-    <link href="http://nukino.github.com/blog/2012/02/03/Cygwinman/"/>
-    <updated>2012-02-03T01:55:00+09:00</updated>
-    <id>http://nukino.github.com/blog/2012/02/03/Cygwinman</id>
+    <link href="http://nukino.github.com/blog/2012/02/04/Cygwinman/"/>
+    <updated>2012-02-04T01:55:00+09:00</updated>
+    <id>http://nukino.github.com/blog/2012/02/04/Cygwinman</id>
     <content type="html"><![CDATA[<p>Cygwin1.7.9において</p>
 
 <p><code>/etc/man.conf</code>に</p>
@@ -178,20 +178,6 @@ man --version
 <p>あと、manのマニュアルがman-dbのものに自動的に切り替わってる。素晴らしい。</p>
 
 <p>設定ファイルは<code>/etc/man_db.conf</code>。全く設定せずに上記の画面が出た。やっぱりこうでなくっちゃ。</p>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[bashのviモード]]></title>
-    <link href="http://nukino.github.com/blog/2012/02/03/bashvi/"/>
-    <updated>2012-02-03T00:28:00+09:00</updated>
-    <id>http://nukino.github.com/blog/2012/02/03/bashvi</id>
-    <content type="html"><![CDATA[<!-- more -->
-
-<h2 id="bashvi">bashのviモードキー定義一覧</h2>
-
-<h2 id="ctrls">Ctrl+Sが効かない</h2>
 
 ]]></content>
   </entry>
