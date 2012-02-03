@@ -4,7 +4,7 @@
   <title><![CDATA[Nukino's memorandum]]></title>
   <link href="http://nukino.github.com/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2012-02-04T04:27:55+09:00</updated>
+  <updated>2012-02-04T04:32:38+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -774,7 +774,8 @@ make config
 
 <p><img src="http://nukino.github.com/images/2012/02/01/img06.png" alt="img06" title="man manスクリーンショット" /></p>
 
-<p>インデントがガタガタだが、とりあえず表示は出来た。これを直すのはまた後で考える。</p>
+<p>インデントがガタガタだが、とりあえず表示は出来た。これを直すのはまた後で考える。<br />
+(02/04追記。修正してみた。詳しくは<a href="http://nukino.github.com/blog/2012/02/04/Cygwinman/">こちらの記事</a>を参照)</p>
 
 <p>あと日本語manは情報が古い場合がある為、オリジナルmanを参照する必要があるかもしれないので、
 <code>~/.bashrc</code>に以下を追加</p>
