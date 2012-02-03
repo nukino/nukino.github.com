@@ -4,7 +4,7 @@
   <title><![CDATA[Nukino's memorandum]]></title>
   <link href="http://nukino.github.com/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2012-02-04T04:32:38+09:00</updated>
+  <updated>2012-02-04T05:31:11+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -47,7 +47,7 @@
 
 <p>の2つがあると思う。</p>
 
-<p>「倒れるときは前のめり」というモットーの元、私は「2.」で行くことにする(とか何とか言いつつしっかり
+<p>「倒れるときは前のめり」というモットーの元？、私は「2.」で行くことにする(とか何とか言いつつしっかり
 <code>C:\Cygwin</code>はバックアップ取っといたけど)</p>
 
 <h3 id="section">インストールの前に</h3>
@@ -98,13 +98,14 @@ groff --version
 <p><img src="http://nukino.github.com/images/2012/02/03/img01.png" alt="img01" title="groff変更後 man manスクリーンショット" /></p>
 
 <p>だいぶましになったが、特に英語と日本語が混じっている行がおかしいのと、インデントの効いていない行があ
-る。</p>
+る(スクリーンショット内にはないけど、ウィンドウサイズを79x24にして、下の方にスクロールしたら確認でき
+ると思う)。</p>
 
 <h2 id="man-db">man-dbのインストール</h2>
 
 <p>再びUbuntu 11.10にて、<code>man</code>のバージョンを確認すると2.6.0.2だった。Cygwinのバージョン(1.6g)とだいぶ違う。</p>
 
-<p>Ubuntu 11.10に入ってるmanのパッケージ名は正確にはman-dbというらしい</p>
+<p>どうやらUbuntu 11.10に入ってるmanのパッケージ名は正確にはman-dbというらしい</p>
 
 <p>man-dbは何か設定方法が違うっぽい(<code>/etc/manpath.conf</code>しかない？？)が、設定項目がないと言うことはデ
 フォルトで使えるようになってるんだろう。ということで、とりあえずインストールしてみる。</p>
