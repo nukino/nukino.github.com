@@ -264,6 +264,19 @@ man --version
 
 <p>設定ファイルは<code>/etc/man_db.conf</code>。全く設定せずに上記の画面が出た。やっぱりこうでなくっちゃ。</p>
 
+<h3 id="section-6">追記(2012/02/08)</h3>
+
+<p><a href="http://linuxjm.sourceforge.jp/">JM Project</a>の日本語ドキュメントを<code>/usr/share/man/ja_JP.UTF-8</code>などに
+インストールしていると、<code>man ls</code>などとしたときに文字が化ける。</p>
+
+<p>ディレクトリ名を<code>ja_JP.UTF8</code>→<code>ja_JP.EUC-JP</code>にすると直るが、若干レイアウトがずれる(
+<a href="#groff-121-1">変更後(groff 1.21)</a>のような感じ)。</p>
+
+<p>ディレクトリ名を色々いじってみると、<code>ja</code>とすると正常に表示される。
+<code>man -d</code>でデバッグ出力して比較してみたが、特に違いはなかった。原因不明。</p>
+
+<p>とりあえず直ればいいので、日本語ドキュメントは <code>/usr/local/share/man/ja</code>に移動させた。
+(なんとなくデフォルトのjaディレクトリに上書き(マージ)するのは嫌だったので)</p>
 </div>
 
 
