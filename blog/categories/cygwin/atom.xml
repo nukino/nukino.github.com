@@ -4,7 +4,7 @@
   <title><![CDATA[Category: cygwin | Nukino's memorandum]]></title>
   <link href="http://nukino.github.com/blog/categories/cygwin/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2012-02-08T09:13:50+09:00</updated>
+  <updated>2012-02-08T09:20:36+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -18,7 +18,9 @@
     <link href="http://nukino.github.com/blog/2012/02/04/Cygwinman/"/>
     <updated>2012-02-04T01:55:00+09:00</updated>
     <id>http://nukino.github.com/blog/2012/02/04/Cygwinman</id>
-    <content type="html"><![CDATA[<p>Cygwin1.7.9において</p>
+    <content type="html"><![CDATA[<p>2012/02/08 追記→<a href="/blog/2012/02/04/Cygwinman/#section-6">詳細</a></p>
+
+<p>Cygwin1.7.9において</p>
 
 <p><code>/etc/man.conf</code>に</p>
 
