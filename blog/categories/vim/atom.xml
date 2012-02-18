@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vim | Nukino's memorandum]]></title>
   <link href="http://nukino.github.com/blog/categories/vim/atom.xml" rel="self"/>
   <link href="http://nukino.github.com/"/>
-  <updated>2012-02-08T09:20:36+09:00</updated>
+  <updated>2012-02-18T15:28:55+09:00</updated>
   <id>http://nukino.github.com/</id>
   <author>
     <name><![CDATA[nukino]]></name>
@@ -12,6 +12,202 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[vimからWindowsヘルプを開くスクリプト]]></title>
+    <link href="http://nukino.github.com/blog/2012/02/18/vimWindows/"/>
+    <updated>2012-02-18T11:22:00+09:00</updated>
+    <id>http://nukino.github.com/blog/2012/02/18/vimWindows</id>
+    <content type="html"><![CDATA[<p>vimでJScriptとかrubyとか書いてる際にWindowsヘルプを操作するのが面倒だったので、vim上からWindows
+ヘルプを開けるスクリプトを作ってみた。</p>
+
+<p>単純に開くだけではなくて</p>
+
+<ol>
+  <li>カーソル位置の単語でキーワード検索</li>
+  <li>vim上でキーワード入力可能</li>
+</ol>
+
+<p>にも対応した。</p>
+
+<p>またファイルタイプ毎に異なるヘルプファイルを指定できる。</p>
+
+<!-- more -->
+
+<h2 id="section">準備</h2>
+
+<p>まずHTMLヘルプはコマンドラインからキーワードを指定して実行出来ないみたいなのでそれに対応したツールを
+ダウンロードする。</p>
+
+<p><a href="http://www.vector.co.jp/soft/winnt/writing/se454186.html">hhh.exe(vector)</a></p>
+
+<p>またWindows Vista/Windows 7はWinHelp形式のファイルを開けないので、必要ならば以下のページから対応した
+ものをダウンロードする。</p>
+
+<p><a href="http://support.microsoft.com/kb/917607/ja">http://support.microsoft.com/kb/917607/ja</a></p>
+
+<h2 id="section-1">導入</h2>
+
+<p>以下を$VIMRUNTIME/autoloadに置く(Windowsの場合 $HOME/vimfiles/autoload など)。<br />
+ファイル名は<code>externalhelp.vim</code>とする(変えると話がややこしくなるので注意)</p>
+
+<p><div><script src='https://gist.github.com/1857570.js?file='></script>
+<noscript><pre><code>let g:external_hlp_hhhexe = get(g:, 'external_hlp_hhhexe', '')
+let g:external_hlp_winhlpexe = get(g:, 'external_hlp_winhlpexe', '')
+
+&quot; 引数1：キーワード種類
+&quot;           0:カーソル位置をキーワードとする
+&quot;           1:キーワード入力
+&quot;           2:引数2をキーワードとする
+&quot;
+&quot; 引数2：キーワード
+&quot;
+&quot; 引数3：ヘルプファイル名。指定しない場合、
+&quot;         b:externalhelp_file変数→g:external_hlp_files辞書変数
+function! externalhelp#show_windowhelp(...)
+  if !has('win32') 
+    echoerr &quot;Win32環境下以外での動作は想定していません&quot;
+    return &quot;&quot;
+  endif
+  &quot;helpfile, keyw, is_cursor_keyw
+  let keyw_type = get(a:, &quot;1&quot;, 0)
+  let keywd = get(a:, &quot;2&quot;, &quot;&quot;)
+  let helpfile = get(a:, &quot;3&quot;, &quot;&quot;)
+  if helpfile == &quot;&quot; | let helpfile = get(b:,&quot;externalhelp_file&quot;,&quot;&quot;) | en
+  if helpfile == &quot;&quot; | let helpfile = get(get(g:, &quot;external_hlp_files&quot;, {}), &amp;filetype, &quot;&quot;) | en
+  if helpfile == &quot;&quot; | return &quot;&quot; | en
+
+  let helpext = tolower(matchstr(helpfile, '\v.+\.\zs.+\ze'))
+  if helpext == 'chm'
+    let help_exe = g:external_hlp_hhhexe
+    let key_cmdline = 'printf( ''&quot;%s&quot; &quot;%s&quot; %s'', help_exe, helpfile, keywd)'
+    let nokey_cmdline = 'printf( ''&quot;%s&quot; &quot;%s&quot;'', help_exe, helpfile)'
+  elseif helpext == 'hlp'
+    let help_exe = g:external_hlp_winhlpexe
+    let key_cmdline = 'printf( ''&quot;%s&quot; -k%s &quot;%s&quot;'', help_exe, keywd, helpfile)'
+    let nokey_cmdline = 'printf( ''&quot;%s&quot; &quot;%s&quot;'', help_exe, helpfile)'
+  else
+    echoerr &quot;不明なヘルプファイル拡張子です:&quot; . helpext
+    return &quot;&quot;
+  endif
+  if ( !executable( help_exe ) )
+    echoerr '実行ファイル&quot;' . help_exe . '&quot;が見つかりません'
+  elseif ( !filereadable( helpfile ) )
+    echoerr 'ヘルプファイル&quot;' . helpfile . '&quot;が見つかりません'
+  else
+    if keyw_type == 0 
+      let keywd = expand(&quot;&lt;cword&gt;&quot;)
+    elseif keyw_type == 1
+      let keywd = input(&quot;input keyword:&quot;)
+    endif
+
+    if ( keywd == &quot;&quot; )
+      let cmdline = eval(nokey_cmdline)
+    else
+      let cmdline = eval(key_cmdline)
+    endif
+    &quot;メッセージなしで実行
+    &quot;LocalBrowseShellCmdRefresh関数でエラーが起きる(時がある)ので、エラーも無視
+    execute &quot;silent! !start &quot; . cmdline
+  endif
+
+  return &quot;&quot;
+endfunction
+
+&quot;おまけ
+&quot;引数1、引数2の意味はshow_windowhelpと同じ
+function! externalhelp#show_vimhelp(...)
+  let keyw_type = get(a:, &quot;1&quot;, 0)
+  let keywd = get(a:, &quot;2&quot;, &quot;&quot;)
+
+  if keyw_type == 0 
+    let keywd = expand(&quot;&lt;cword&gt;&quot;)
+  elseif keyw_type == 1
+    let keywd = input(&quot;input keyword:&quot;)
+  endif
+
+  execute &quot;help &quot; . keywd
+endfunction</code></pre></noscript></div>
+</p>
+
+<p>設定可能な変数は以下の通り</p>
+
+<dl>
+  <dt><code>g:external_hlp_hhhexe</code></dt>
+  <dd>hhh.exeのパス</dd>
+  <dt><code>g:external_hlp_winhlpexe</code></dt>
+  <dd>winhlp32.exeまたはwinhelp.exeのパス</dd>
+  <dt><code>b:externalhelp_file</code></dt>
+  <dd>バッファ固有の外部ヘルプファイルのパス</dd>
+  <dt><code>g:external_hlp_files</code></dt>
+  <dd>キー=ファイルタイプ、値=外部ヘルプのパスの辞書。<code>b:externalhelp_file</code>の方が優先</dd>
+</dl>
+
+<p>関数の呼びだし方はソースのコメント参照(ぉぃ</p>
+
+<h2 id="section-2">設定例</h2>
+
+<p>$MYVIMRC(<code>~/_vimrc</code>)に以下のように記述
+([F2]→カーソル上の単語でキーワード検索、Shift+[F2]→キーワードをVim上で入力)</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>$MYVIMRC(ex _vimrc)  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='vim'><span class='line'>    “実行ファイルのパス
+</span><span class='line'>    <span class="k">let</span> g:external_hlp_hhhexe <span class="p">=</span> ‘E:\Tools\hhh\hhh.exe’
+</span><span class='line'>    <span class="k">let</span> g:external_hlp_winhlpexe <span class="p">=</span> ‘C:\Windows\winhlp32.exe’<span class="p">&lt;</span>/<span class="k">p</span><span class="p">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">&lt;</span><span class="k">pre</span><span class="p">&gt;&lt;</span>code<span class="p">&gt;</span>&quot;ファイルタイプ毎のヘルプファイルを記述。
+</span><span class='line'><span class="c">&quot;空白が入っていても文字列自体をダブルクォーテーションで括っては駄目。</span>
+</span><span class='line'><span class="k">let</span> g:external_hlp_files <span class="p">=</span> {
+</span><span class='line'>  \<span class="s2">&quot;ruby&quot;</span>:        expand<span class="p">(</span><span class="s1">&#39;~/help/ruby-refm-1.9.2-20110729.chm&#39;</span><span class="p">),</span>
+</span><span class='line'>  \<span class="s2">&quot;javascript&quot;</span>:  <span class="s1">&#39;C:\Program Files\Microsoft Windows Script\ScriptDocs\Script56.CHM&#39;</span>
+</span><span class='line'>\}
+</span><span class='line'>
+</span><span class='line'><span class="c">&quot;キーマッピング</span>
+</span><span class='line'>nnoremap &amp;<span class="k">lt</span>;expr&amp;gt;&amp;<span class="k">lt</span>;<span class="k">silent</span>&amp;gt; &amp;<span class="k">lt</span>;F2&amp;gt;     externalhelp#show_windowhelp<span class="p">(</span><span class="m">0</span><span class="p">)</span>
+</span><span class='line'>nnoremap &amp;<span class="k">lt</span>;expr&amp;gt;&amp;<span class="k">lt</span>;<span class="k">silent</span>&amp;gt; &amp;<span class="k">lt</span>;S<span class="p">-</span>F2&amp;gt;   externalhelp#show_windowhelp<span class="p">(</span><span class="m">1</span><span class="p">)</span>
+</span><span class='line'>inoremap &amp;<span class="k">lt</span>;expr&amp;gt;&amp;<span class="k">lt</span>;<span class="k">silent</span>&amp;gt; &amp;<span class="k">lt</span>;F2&amp;gt;     externalhelp#show_windowhelp<span class="p">(</span><span class="m">0</span><span class="p">)</span>
+</span><span class='line'>inoremap &amp;<span class="k">lt</span>;expr&amp;gt;&amp;<span class="k">lt</span>;<span class="k">silent</span>&amp;gt; &amp;<span class="k">lt</span>;S<span class="p">-</span>F2&amp;gt;   externalhelp#show_windowhelp<span class="p">(</span><span class="m">1</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+</code></pre>
+
+<p><code>externalhelp#show_windowhelp(2,"")</code>とするとキーワードなしで起動する。</p>
+
+<p>あとVimヘルプのキーワード検索(タグ検索？)用関数(<code>show_vimhelp</code>)を使うなら$MYVIMRC(<code>~/_vimrc</code>)を
+以下のようにする([F1]→カーソル上の単語でVimヘルプ表示)</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>$MYVIMRC(ex _vimrc)  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='vim'><span class='line'>    nnoremap <span class="p">&lt;</span><span class="k">silent</span><span class="p">&gt;</span>       <span class="p">&lt;</span>f1<span class="p">&gt;</span>     :<span class="p">&lt;</span><span class="k">c</span><span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> externalhelp#show_vimhelp<span class="p">(</span><span class="m">0</span><span class="p">)&lt;</span><span class="k">cr</span><span class="p">&gt;</span>
+</span><span class='line'>    inoremap <span class="p">&lt;</span><span class="k">silent</span><span class="p">&gt;</span>       <span class="p">&lt;</span>f1<span class="p">&gt;</span>     <span class="p">&lt;</span><span class="k">c</span><span class="p">-</span><span class="k">o</span><span class="p">&gt;</span>:<span class="k">call</span> externalhelp#show_vimhelp<span class="p">(</span><span class="m">0</span><span class="p">)&lt;</span><span class="k">cr</span><span class="p">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></cr></c-o></f1></silent></cr></c-u></f1></silent></p>
+
+<p><code>nnoremap &lt;expr&gt;</code>とかだと動かなかった(エラーメッセージが表示される)ので、callコマンドを呼び出すよう
+にしてある。</p>
+
+<h2 id="section-3">補足</h2>
+
+<p>WinHelp形式のヘルプにも対応してあるが、手でcallコマンドで呼び出して挙動を見ただけで、
+実際にヘルプファイル割り当てて動かしてないので、若干怪しいところとかがあるかも</p>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Gist.vimの導入とヘルパースクリプトの作成]]></title>
@@ -884,116 +1080,6 @@ endif</code></pre></noscript></div>
     </li>
   </ol>
 </div>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[vim環境の再構築１(DropBoxでvim設定の共有)]]></title>
-    <link href="http://nukino.github.com/blog/2011/12/24/test-post/"/>
-    <updated>2011-12-24T05:58:00+09:00</updated>
-    <id>http://nukino.github.com/blog/2011/12/24/test-post</id>
-    <content type="html"><![CDATA[<p>最近vimでvundleとかpathogenとかでプラグイン管理するのが流行ってるっぽいので、私もやってみたい。<br />
-ついでなのでこの機会にvim環境を再構築してみようと計画してみた。</p>
-
-<ol>
-  <li>vim設定の共有化</li>
-  <li>neobundleでプラグイン管理</li>
-  <li>今使ってるプラグインの見直し</li>
-  <li>ruby編集環境構築(quickrun、vim-refなど)</li>
-</ol>
-
-<p>こんな感じの計画かな？</p>
-
-<!-- more -->
-<p>##vim設定の共有化について</p>
-
-<p>使ってるPCでプラグインやその他設定が一致していると便利。</p>
-
-<p>githubでvim設定を共有化するページを幾つか見つけたが、なんとなく同期させるには毎回コマンドを打たない
-といけないような気がする。</p>
-
-<p>ものぐさな私はそんな鬱陶しいことやってられないので、今使ってるDropBoxを利用すればDropBoxフォルダに置
-いておくだけで、自動的に同期してくれるから便利な気がする。</p>
-
-<p>もちろんSugarSyncなどローカルにあるフォルダを同期してくれるオンラインストレージならなんでもおｋ。</p>
-
-<p>DropBoxでアカウント取りたい場合は<a href="http://db.tt/cZwekOvO">ここ</a>からアカウント作ってくれると嬉しいです
-。(招待機能で招待した人された人双方に256MB容量が増える。でもアカウント作ったメアドが私にばれちゃうの
-で注意)</p>
-
-<h2 id="vimrcgvimrcdropbox">ユーザvimrc、ユーザgvimrcをDropBoxフォルダで管理</h2>
-
-<p>ユーザvimrc、ユーザgvimrcは私の環境はWindowsなので、<code>$HOME/_vimrc</code>、<code>$HOME/_gvimrc</code>にあります。</p>
-
-<p>これをDropBoxフォルダに置きたい。一番簡単なのは</p>
-
-<pre class="cmdline"><code>SET HOME=%DROPBOX_DIR%
-</code></pre>
-
-<p>みたいに$HOMEをDrobBoxフォルダにしてしまうことですが、これは好みではない。</p>
-
-<p>なので、ハードリンクを使おうと思う(Windows 2000以降＆$HOMEとDropBoxフォルダが同じボリューム＆その
-ボリュームがNTFSフォーマットの場合使用可能)。  </p>
-
-<p>最近のMac OSやlinuxユーザはハードリンクなりシンボリックリンクなりを使えば可能だと思う(lnコマンドだっ
-け？)。<br />
-Windows Vista以降ではシンボリックリンクが実装されてるみたいなんで、同一ボリュームの制限はないみたい
-(mklinkコマンドを使用？)</p>
-
-<p>私はPPxというファイラでサクッと作ってしまいましたが、持ってない人はコマンドラインを叩けば可。</p>
-
-<p>$HOME/_vimrc、$HOME/_gvimrcをDropBoxフォルダへ移動した上で(不安ならバックアップ取った上で)</p>
-
-<pre class="cmdline"><code>fsutil hardlink create %HOME%\_vimrc %DROPBOX_DIR%\_vimrc
-fsutil hardlink create %HOME%\_gvimrc %DROPBOX_DIR%\_gvimrc
-</code></pre>
-
-<p>とかすれば出来るんじゃないかと思います。</p>
-
-<p>残念ながらハードリンク or シンボリックリンクを使える条件を満たしてない場合は若干イリーガルだけど、</p>
-
-<pre class="cmdline"><code>SET MYVIMRC=%DROPBOX_DIR%\_vimrc
-SET MYGVIMRC=%DROPBOX_DIR%\_gvimrc
-SET VIMINIT=:source %MYVIMRC%
-SET GVIMINIT=:source %MYGVIMRC%
-</code></pre>
-
-<p>とかすればOK(当然コントロールパネル等で上記コマンドに相当する環境変数の設定をやること)</p>
-
-<p>最初ハードリンクがファイルへのリンク貼れるの知らなくて、こっちのイリーガルな方法でやってたんで、動作
-は確認済み(ただし私の環境ではMYGVIMRCは環境変数展開じゃ駄目で直接パス打ち込まないと動かなかった)</p>
-
-<p>または$HOME/_vimrcに</p>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span><code>$HOME/_vimrc</code> </span></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>source expand(‘$DROPBOX_DIR’) . ‘/_vimrc’</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>とか書いてもおｋ・・・だと思う(試してない)</p>
-
-<h2 id="runtimepath">$RUNTIMEPATHの追加</h2>
-
-<p>$RUNTIMEPATHは以下のように運用しようと思う</p>
-
-<dl>
-  <dt>$DROPBOX_DIR/vimfiles</dt>
-  <dd>共有するプラグイン、vim設定を入れる</dd>
-  <dt>$HOME/vimfiles/</dt>
-  <dd>そのパソコン固有の設定を入れる</dd>
-  <dt>$HOME/vimfiles/after</dt>
-  <dd>そのパソコン固有の設定を入れる。共有設定を上書きしたい場合に利用する</dd>
-</dl>
-
-<p>ということでDROPBOX_DIRという環境変数を設定した上で、ユーザvimrcの先頭に以下のように記述する</p>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span><code>$HOME/_vimrc</code> </span></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>let dropbox_vim=substitute(expand($DROPBOX_DIR), “\”, “/”, “g”) . ‘/vimfiles’
-</span><span class='line'>	let &amp;runtimepath = dropbox_vim . “,” . &amp;runtimepath</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>$vimのpluginとかより先にロードされちゃうのが若干気になるが、今のところ特に問題はなさそう。</p>
-
 ]]></content>
   </entry>
   

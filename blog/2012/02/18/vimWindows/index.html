@@ -1,0 +1,487 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>vimからWindowsヘルプを開くスクリプト - Nukino's memorandum</title>
+  <meta name="author" content="nukino">
+
+  
+  <meta name="description" content="vimでJScriptとかrubyとか書いてる際にWindowsヘルプを操作するのが面倒だったので、vim上からWindows
+ヘルプを開けるスクリプトを作ってみた。 単純に開くだけではなくて カーソル位置の単語でキーワード検索 vim上でキーワード入力可能 にも対応した。 &hellip;">
+  <meta name="keywords" content="vim, winhelp, vim-script">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://nukino.github.com/blog/2012/02/18/vimWindows">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Nukino's memorandum" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27974112-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Nukino's memorandum</a></h1>
+  
+    <h2>とあるソフト屋の覚え書き</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:nukino.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">vimからWindowsヘルプを開くスクリプト</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-18T11:22:00+09:00" pubdate data-updated="true">2012年02月18日(Sat)</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>vimでJScriptとかrubyとか書いてる際にWindowsヘルプを操作するのが面倒だったので、vim上からWindows
+ヘルプを開けるスクリプトを作ってみた。</p>
+
+<p>単純に開くだけではなくて</p>
+
+<ol>
+  <li>カーソル位置の単語でキーワード検索</li>
+  <li>vim上でキーワード入力可能</li>
+</ol>
+
+<p>にも対応した。</p>
+
+<p>またファイルタイプ毎に異なるヘルプファイルを指定できる。</p>
+
+<!-- more -->
+
+<h2 id="section">準備</h2>
+
+<p>まずHTMLヘルプはコマンドラインからキーワードを指定して実行出来ないみたいなのでそれに対応したツールを
+ダウンロードする。</p>
+
+<p><a href="http://www.vector.co.jp/soft/winnt/writing/se454186.html">hhh.exe(vector)</a></p>
+
+<p>またWindows Vista/Windows 7はWinHelp形式のファイルを開けないので、必要ならば以下のページから対応した
+ものをダウンロードする。</p>
+
+<p><a href="http://support.microsoft.com/kb/917607/ja">http://support.microsoft.com/kb/917607/ja</a></p>
+
+<h2 id="section-1">導入</h2>
+
+<p>以下を$VIMRUNTIME/autoloadに置く(Windowsの場合 $HOME/vimfiles/autoload など)。<br />
+ファイル名は<code>externalhelp.vim</code>とする(変えると話がややこしくなるので注意)</p>
+
+<div><script src="https://gist.github.com/1857570.js?file="></script>
+<noscript><pre><code>let g:external_hlp_hhhexe = get(g:, 'external_hlp_hhhexe', '')
+let g:external_hlp_winhlpexe = get(g:, 'external_hlp_winhlpexe', '')
+
+&quot; 引数1：キーワード種類
+&quot;           0:カーソル位置をキーワードとする
+&quot;           1:キーワード入力
+&quot;           2:引数2をキーワードとする
+&quot;
+&quot; 引数2：キーワード
+&quot;
+&quot; 引数3：ヘルプファイル名。指定しない場合、
+&quot;         b:externalhelp_file変数→g:external_hlp_files辞書変数
+function! externalhelp#show_windowhelp(...)
+  if !has('win32') 
+    echoerr &quot;Win32環境下以外での動作は想定していません&quot;
+    return &quot;&quot;
+  endif
+  &quot;helpfile, keyw, is_cursor_keyw
+  let keyw_type = get(a:, &quot;1&quot;, 0)
+  let keywd = get(a:, &quot;2&quot;, &quot;&quot;)
+  let helpfile = get(a:, &quot;3&quot;, &quot;&quot;)
+  if helpfile == &quot;&quot; | let helpfile = get(b:,&quot;externalhelp_file&quot;,&quot;&quot;) | en
+  if helpfile == &quot;&quot; | let helpfile = get(get(g:, &quot;external_hlp_files&quot;, {}), &amp;filetype, &quot;&quot;) | en
+  if helpfile == &quot;&quot; | return &quot;&quot; | en
+
+  let helpext = tolower(matchstr(helpfile, '\v.+\.\zs.+\ze'))
+  if helpext == 'chm'
+    let help_exe = g:external_hlp_hhhexe
+    let key_cmdline = 'printf( ''&quot;%s&quot; &quot;%s&quot; %s'', help_exe, helpfile, keywd)'
+    let nokey_cmdline = 'printf( ''&quot;%s&quot; &quot;%s&quot;'', help_exe, helpfile)'
+  elseif helpext == 'hlp'
+    let help_exe = g:external_hlp_winhlpexe
+    let key_cmdline = 'printf( ''&quot;%s&quot; -k%s &quot;%s&quot;'', help_exe, keywd, helpfile)'
+    let nokey_cmdline = 'printf( ''&quot;%s&quot; &quot;%s&quot;'', help_exe, helpfile)'
+  else
+    echoerr &quot;不明なヘルプファイル拡張子です:&quot; . helpext
+    return &quot;&quot;
+  endif
+  if ( !executable( help_exe ) )
+    echoerr '実行ファイル&quot;' . help_exe . '&quot;が見つかりません'
+  elseif ( !filereadable( helpfile ) )
+    echoerr 'ヘルプファイル&quot;' . helpfile . '&quot;が見つかりません'
+  else
+    if keyw_type == 0 
+      let keywd = expand(&quot;&lt;cword&gt;&quot;)
+    elseif keyw_type == 1
+      let keywd = input(&quot;input keyword:&quot;)
+    endif
+
+    if ( keywd == &quot;&quot; )
+      let cmdline = eval(nokey_cmdline)
+    else
+      let cmdline = eval(key_cmdline)
+    endif
+    &quot;メッセージなしで実行
+    &quot;LocalBrowseShellCmdRefresh関数でエラーが起きる(時がある)ので、エラーも無視
+    execute &quot;silent! !start &quot; . cmdline
+  endif
+
+  return &quot;&quot;
+endfunction
+
+&quot;おまけ
+&quot;引数1、引数2の意味はshow_windowhelpと同じ
+function! externalhelp#show_vimhelp(...)
+  let keyw_type = get(a:, &quot;1&quot;, 0)
+  let keywd = get(a:, &quot;2&quot;, &quot;&quot;)
+
+  if keyw_type == 0 
+    let keywd = expand(&quot;&lt;cword&gt;&quot;)
+  elseif keyw_type == 1
+    let keywd = input(&quot;input keyword:&quot;)
+  endif
+
+  execute &quot;help &quot; . keywd
+endfunction</code></pre></noscript></div>
+
+<p>設定可能な変数は以下の通り</p>
+
+<dl>
+  <dt><code>g:external_hlp_hhhexe</code></dt>
+  <dd>hhh.exeのパス</dd>
+  <dt><code>g:external_hlp_winhlpexe</code></dt>
+  <dd>winhlp32.exeまたはwinhelp.exeのパス</dd>
+  <dt><code>b:externalhelp_file</code></dt>
+  <dd>バッファ固有の外部ヘルプファイルのパス</dd>
+  <dt><code>g:external_hlp_files</code></dt>
+  <dd>キー=ファイルタイプ、値=外部ヘルプのパスの辞書。<code>b:externalhelp_file</code>の方が優先</dd>
+</dl>
+
+<p>関数の呼びだし方はソースのコメント参照(ぉぃ</p>
+
+<h2 id="section-2">設定例</h2>
+
+<p>$MYVIMRC(<code>~/_vimrc</code>)に以下のように記述
+([F2]→カーソル上の単語でキーワード検索、Shift+[F2]→キーワードをVim上で入力)</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>$MYVIMRC(ex _vimrc)  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+</pre></td><td class="code"><pre><code class="vim"><span class="line"><span class="c">    &quot;実行ファイルのパス</span>
+</span><span class="line">    <span class="k">let</span> g:external_hlp_hhhexe <span class="p">=</span> <span class="s1">&#39;E:\Tools\hhh\hhh.exe&#39;</span>
+</span><span class="line">    <span class="k">let</span> g:external_hlp_winhlpexe <span class="p">=</span> <span class="s1">&#39;C:\Windows\winhlp32.exe&#39;</span>
+</span><span class="line">
+</span><span class="line"><span class="c">    &quot;ファイルタイプ毎のヘルプファイルを記述。</span>
+</span><span class="line"><span class="c">    &quot;空白が入っていても文字列自体をダブルクォーテーションで括っては駄目。</span>
+</span><span class="line">    <span class="k">let</span> g:external_hlp_files <span class="p">=</span> {
+</span><span class="line">      \<span class="s2">&quot;ruby&quot;</span>:        expand<span class="p">(</span><span class="s1">&#39;~/help/ruby-refm-1.9.2-20110729.chm&#39;</span><span class="p">),</span>
+</span><span class="line">      \<span class="s2">&quot;javascript&quot;</span>:  <span class="s1">&#39;C:\Program Files\Microsoft Windows Script\ScriptDocs\Script56.CHM&#39;</span>
+</span><span class="line">    \}
+</span><span class="line">
+</span><span class="line"><span class="c">    &quot;キーマッピング</span>
+</span><span class="line">    nnoremap <span class="p">&lt;</span>expr<span class="p">&gt;&lt;</span><span class="k">silent</span><span class="p">&gt;</span> <span class="p">&lt;</span>F2<span class="p">&gt;</span>     externalhelp#show_windowhelp<span class="p">(</span><span class="m">0</span><span class="p">)</span>
+</span><span class="line">    nnoremap <span class="p">&lt;</span>expr<span class="p">&gt;&lt;</span><span class="k">silent</span><span class="p">&gt;</span> <span class="p">&lt;</span>S<span class="p">-</span>F2<span class="p">&gt;</span>   externalhelp#show_windowhelp<span class="p">(</span><span class="m">1</span><span class="p">)</span>
+</span><span class="line">    inoremap <span class="p">&lt;</span>expr<span class="p">&gt;&lt;</span><span class="k">silent</span><span class="p">&gt;</span> <span class="p">&lt;</span>F2<span class="p">&gt;</span>     externalhelp#show_windowhelp<span class="p">(</span><span class="m">0</span><span class="p">)</span>
+</span><span class="line">    inoremap <span class="p">&lt;</span>expr<span class="p">&gt;&lt;</span><span class="k">silent</span><span class="p">&gt;</span> <span class="p">&lt;</span>S<span class="p">-</span>F2<span class="p">&gt;</span>   externalhelp#show_windowhelp<span class="p">(</span><span class="m">1</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p><code>externalhelp#show_windowhelp(2,"")</code>とするとキーワードなしで起動する。</p>
+
+<p>あとVimヘルプのキーワード検索(タグ検索？)用関数(<code>show_vimhelp</code>)を使うなら$MYVIMRC(<code>~/_vimrc</code>)を
+以下のようにする([F1]→カーソル上の単語でVimヘルプ表示)</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>$MYVIMRC(ex _vimrc)  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class="vim"><span class="line">    nnoremap <span class="p">&lt;</span><span class="k">silent</span><span class="p">&gt;</span>       <span class="p">&lt;</span>F1<span class="p">&gt;</span>     :<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> externalhelp#show_vimhelp<span class="p">(</span><span class="m">0</span><span class="p">)&lt;</span>CR<span class="p">&gt;</span>
+</span><span class="line">    inoremap <span class="p">&lt;</span><span class="k">silent</span><span class="p">&gt;</span>       <span class="p">&lt;</span>F1<span class="p">&gt;</span>     <span class="p">&lt;</span>C<span class="p">-</span><span class="k">o</span><span class="p">&gt;</span>:<span class="k">call</span> externalhelp#show_vimhelp<span class="p">(</span><span class="m">0</span><span class="p">)&lt;</span>CR<span class="p">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p><code>nnoremap &lt;expr&gt;</code>とかだと動かなかった(エラーメッセージが表示される)ので、callコマンドを呼び出すよう
+にしてある。</p>
+
+<h2 id="section-3">補足</h2>
+
+<p>WinHelp形式のヘルプにも対応してあるが、手でcallコマンドで呼び出して挙動を見ただけで、
+実際にヘルプファイル割り当てて動かしてないので、若干怪しいところとかがあるかも</p>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">nukino</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-18T11:22:00+09:00" pubdate data-updated="true">2012年02月18日(Sat)</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/vim/'>vim</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://nukino.github.com/blog/2012/02/18/vimWindows/" data-via="nukino_j" data-counturl="http://nukino.github.com/blog/2012/02/18/vimWindows/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/02/04/Cygwinman/" title="Previous Post: Cygwinで日本語manのレイアウト崩れを直す">&laquo; Cygwinで日本語manのレイアウト崩れを直す</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+  <p>本職は組み込み系の30代Cプログラマ</p>
+  <p>Windows専用でLinuxとかは基本専門外。いつか使いこなせるようになりたいと夢見てる</p>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/02/18/vimWindows/">vimからWindowsヘルプを開くスクリプト</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/04/Cygwinman/">Cygwinで日本語manのレイアウト崩れを直す</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/02/cygwinmintty/">cygwin(mintty)のシェル設定ファイル読み込み順</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/02/Cygwin/">Cygwinを導入してみた</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/24/ThinkpadT61pWindowsXP/">ThinkpadT61pをWindowsXPとWindows7デュアルブートにする</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Github Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/nukino">@nukino</a> on Github
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'nukino',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("nukino_j", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/nukino_j" class="twitter-follow-button" data-show-count="false">Follow @nukino_j</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - nukino -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'nukinosmemorandum';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://nukino.github.com/blog/2012/02/18/vimWindows/';
+        var disqus_url = 'http://nukino.github.com/blog/2012/02/18/vimWindows/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

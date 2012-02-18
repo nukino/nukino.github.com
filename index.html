@@ -9,7 +9,8 @@
   <meta name="author" content="nukino">
 
   
-  <meta name="description" content="2012/02/08 追記→詳細 Cygwin1.7.9において /etc/man.confに JNROFF /usr/bin/groff -DeucJP -Tutf8 -mandoc と記述すれば、日本語manが表示されるが、レイアウトが崩れるので、これを修正しようと試みた &hellip;">
+  <meta name="description" content="vimでJScriptとかrubyとか書いてる際にWindowsヘルプを操作するのが面倒だったので、vim上からWindows
+ヘルプを開けるスクリプトを作ってみた。 単純に開くだけではなくて カーソル位置の単語でキーワード検索 vim上でキーワード入力可能 にも対応した。 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -76,6 +77,59 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/02/18/vimWindows/">vimからWindowsヘルプを開くスクリプト</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-18T11:22:00+09:00" pubdate data-updated="true">2012年02月18日(Sat)</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>vimでJScriptとかrubyとか書いてる際にWindowsヘルプを操作するのが面倒だったので、vim上からWindows
+ヘルプを開けるスクリプトを作ってみた。</p>
+
+<p>単純に開くだけではなくて</p>
+
+<ol>
+  <li>カーソル位置の単語でキーワード検索</li>
+  <li>vim上でキーワード入力可能</li>
+</ol>
+
+<p>にも対応した。</p>
+
+<p>またファイルタイプ毎に異なるヘルプファイルを指定できる。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/02/18/vimWindows/">続きを読む &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -533,58 +587,9 @@ OSもついでに新しくしようと計画してみた。</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2011/12/24/test-post/">vim環境の再構築１(DropBoxでvim設定の共有)</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-12-24T05:58:00+09:00" pubdate data-updated="true">2011年12月24日(Sat)</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>最近vimでvundleとかpathogenとかでプラグイン管理するのが流行ってるっぽいので、私もやってみたい。<br />
-ついでなのでこの機会にvim環境を再構築してみようと計画してみた。</p>
-
-<ol>
-  <li>vim設定の共有化</li>
-  <li>neobundleでプラグイン管理</li>
-  <li>今使ってるプラグインの見直し</li>
-  <li>ruby編集環境構築(quickrun、vim-refなど)</li>
-</ol>
-
-<p>こんな感じの計画かな？</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2011/12/24/test-post/">続きを読む &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
+    
+      <a class="prev" href="/blog/page/2/">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -602,6 +607,10 @@ OSもついでに新しくしようと計画してみた。</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2012/02/18/vimWindows/">vimからWindowsヘルプを開くスクリプト</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/02/04/Cygwinman/">Cygwinで日本語manのレイアウト崩れを直す</a>
       </li>
     
@@ -615,10 +624,6 @@ OSもついでに新しくしようと計画してみた。</p>
     
       <li class="post">
         <a href="/blog/2012/01/24/ThinkpadT61pWindowsXP/">ThinkpadT61pをWindowsXPとWindows7デュアルブートにする</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/01/16/gist_vim/">Gist.vimの導入とヘルパースクリプトの作成</a>
       </li>
     
   </ul>
